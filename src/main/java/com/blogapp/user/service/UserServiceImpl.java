@@ -2,10 +2,9 @@ package com.blogapp.user.service;
 
 import java.util.Optional;
 
+import org.apache.coyote.BadRequestException;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -38,11 +37,11 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public RegisterResponseDTO register(@Valid AuthRequestDto authRequestDto) {
+    public RegisterResponseDTO register(@Valid AuthRequestDto authRequestDto) throws BadRequestException {
         Optional<User> userAlreadyExists = userRepository.findByUsername(authRequestDto.getUsername());
 
         if (userAlreadyExists.isPresent()) {
-            throw new BadCredentialsException("Bad credentials");
+            throw new BadRequestException("Bad credentials");
         }
 
         User user = new User();

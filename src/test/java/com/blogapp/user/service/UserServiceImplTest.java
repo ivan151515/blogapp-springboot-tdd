@@ -10,6 +10,7 @@ import static org.mockito.Mockito.when;
 
 import java.util.Optional;
 
+import org.apache.coyote.BadRequestException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -81,13 +82,13 @@ public class UserServiceImplTest {
     void registerUser_usernameAlreadyExistsThrows() {
         when(userRepository.findByUsername("already-taken")).thenReturn(Optional.of(user));
 
-        assertThrows(BadCredentialsException.class, () -> {
+        assertThrows(BadRequestException.class, () -> {
             userServiceImpl.register(new AuthRequestDto("password", "already-taken"));
         });
     }
 
     @Test
-    void registerUser_validRequest() {
+    void registerUser_validRequest() throws BadRequestException {
         when(userRepository.findByUsername(anyString())).thenReturn(Optional.empty());
 
         var result = userServiceImpl.register(new AuthRequestDto("password", "username"));

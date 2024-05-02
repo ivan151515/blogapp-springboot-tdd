@@ -1,4 +1,4 @@
-package com.blogapp.user;
+package com.blogapp.user.controller;
 
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -11,6 +11,7 @@ import com.blogapp.user.service.UserService;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 
+import org.apache.coyote.BadRequestException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -29,7 +30,8 @@ public class UserController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<RegisterResponseDTO> register(@RequestBody @Valid AuthRequestDto authRequestDto) {
+    public ResponseEntity<RegisterResponseDTO> register(@RequestBody @Valid AuthRequestDto authRequestDto)
+            throws BadRequestException {
         return new ResponseEntity<RegisterResponseDTO>(userService.register(authRequestDto), HttpStatus.CREATED);
     }
 }

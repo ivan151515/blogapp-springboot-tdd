@@ -1,4 +1,4 @@
-package com.blogapp.security;
+package com.blogapp.security.jwt;
 
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;

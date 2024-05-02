@@ -1,4 +1,4 @@
-package com.blogapp.security;
+package com.blogapp.security.jwt;
 
 import com.nimbusds.jose.jwk.RSAKey;
 
