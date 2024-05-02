@@ -1,4 +1,4 @@
-package com.blogapp.controller;
+package com.blogapp.user.controller;
 
 import java.util.stream.Stream;
 
@@ -24,6 +24,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.blogapp.user.dto.AuthRequestDto;
 import com.blogapp.user.dto.LoginResponseDTO;
+import com.blogapp.user.dto.RegisterResponseDTO;
 import com.blogapp.user.service.UserService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -40,7 +41,7 @@ public class UserControllerTest {
     @MockBean
     private UserService userService;
 
-    @MethodSource("provideInvalidLoginRequest")
+    @MethodSource("provideInvalidAuthRequest")
     @ParameterizedTest
     void invalidUserLogin_badRequest(AuthRequestDto loginDto) throws JsonProcessingException, Exception {
         mockMvc.perform(post("/api/auth/login")
@@ -73,22 +74,42 @@ public class UserControllerTest {
                 .with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(loginDto)))
-                .andExpect(status().is(401))
+                .andExpect(status().isUnauthorized())
                 .andExpect(jsonPath("token").doesNotExist());
 
     }
 
-    @MethodSource("provideInvalidLoginRequest")
+    @MethodSource("provideInvalidAuthRequest")
     @ParameterizedTest
     void invalidUserRegistration_badRequest(AuthRequestDto registerDto) throws JsonProcessingException, Exception {
         mockMvc.perform(post("/api/auth/register")
                 .with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsBytes(registerDto)))
+                .content(objectMapper.writeValueAsString(registerDto)))
                 .andExpect(status().isBadRequest());
     }
 
-    private static Stream<Arguments> provideInvalidLoginRequest() {
+    @Test
+    void whenValidRegistration_returnUserDto() throws JsonProcessingException, Exception {
+        when(userService.register(any(AuthRequestDto.class))).thenReturn(new RegisterResponseDTO("success"));
+        mockMvc.perform(post("/api/auth/register")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(new AuthRequestDto("validPassword", "validUsername"))))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("message").value("success"));
+    }
+
+    @Test
+    void whenServiceRegisterThrows_badRequest() throws JsonProcessingException, Exception {
+        when(userService.register(any())).thenThrow(new BadCredentialsException("User already exists"));
+
+        mockMvc.perform(post("/api/auth/register")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(new AuthRequestDto("validPassword", "validUsername"))))
+                .andExpect(status().isUnauthorized());
+    }
+
+    private static Stream<Arguments> provideInvalidAuthRequest() {
         return Stream.of(
                 Arguments.of(new AuthRequestDto(null, null)),
                 Arguments.of(new AuthRequestDto("asd", "dad")),

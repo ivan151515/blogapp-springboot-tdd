@@ -5,6 +5,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.blogapp.user.dto.AuthRequestDto;
 import com.blogapp.user.dto.LoginResponseDTO;
+import com.blogapp.user.dto.RegisterResponseDTO;
 import com.blogapp.user.service.UserService;
 
 import jakarta.validation.Valid;
@@ -28,7 +29,7 @@ public class UserController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<String> register(@RequestBody @Valid AuthRequestDto authRequestDto) {
-        return new ResponseEntity<String>("", HttpStatus.OK);
+    public ResponseEntity<RegisterResponseDTO> register(@RequestBody @Valid AuthRequestDto authRequestDto) {
+        return new ResponseEntity<RegisterResponseDTO>(userService.register(authRequestDto), HttpStatus.CREATED);
     }
 }
