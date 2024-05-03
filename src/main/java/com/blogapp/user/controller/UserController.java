@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.blogapp.user.dto.AuthRequestDto;
 import com.blogapp.user.dto.LoginResponseDTO;
 import com.blogapp.user.dto.RegisterResponseDTO;
+import com.blogapp.user.dto.UserDTO;
 import com.blogapp.user.service.UserService;
 
 import jakarta.validation.Valid;
@@ -14,6 +15,7 @@ import lombok.AllArgsConstructor;
 import org.apache.coyote.BadRequestException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -37,7 +39,7 @@ public class UserController {
     }
 
     @GetMapping("/me")
-    public ResponseEntity<String> getLoggedInUser() {
-        return new ResponseEntity<String>("null", HttpStatus.OK);
+    public ResponseEntity<UserDTO> getLoggedInUser(Authentication authentication) {
+        return new ResponseEntity<UserDTO>(userService.findUserWithProfile(authentication.getName()), HttpStatus.OK);
     }
 }

@@ -12,14 +12,18 @@ import com.blogapp.security.jwt.JwtService;
 import com.blogapp.user.dto.AuthRequestDto;
 import com.blogapp.user.dto.LoginResponseDTO;
 import com.blogapp.user.dto.RegisterResponseDTO;
+import com.blogapp.user.dto.UserDTO;
 import com.blogapp.user.entity.User;
 import com.blogapp.user.repository.UserRepository;
 
+import jakarta.persistence.EntityNotFoundException;
+import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 @Service
+@Transactional
 public class UserServiceImpl implements UserService {
 
     private final PasswordEncoder passwordEncoder;
@@ -51,6 +55,13 @@ public class UserServiceImpl implements UserService {
         userRepository.save(user);
         return new RegisterResponseDTO("success");
         // return new RegisterResponseDTO("User registered succesfully");
+    }
+
+    @Override
+    public UserDTO findUserWithProfile(String username) {
+        var user = userRepository.findUserWithProfile(username).orElseThrow(() -> new EntityNotFoundException(""));
+
+        return new UserDTO(user.getUsername(), user.getProfile());
     }
 
 }

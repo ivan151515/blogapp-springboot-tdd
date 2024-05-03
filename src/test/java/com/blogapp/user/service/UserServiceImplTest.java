@@ -26,6 +26,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import com.blogapp.security.jwt.JwtService;
 import com.blogapp.user.dto.AuthRequestDto;
 import com.blogapp.user.entity.User;
+import com.blogapp.user.profile.Profile;
 import com.blogapp.user.repository.UserRepository;
 
 @ExtendWith(MockitoExtension.class)
@@ -97,5 +98,15 @@ public class UserServiceImplTest {
         verify(userRepository).save(any(User.class));
         assertEquals("success", result.getMessage());
 
+    }
+
+    @Test
+    void findUserWithProfile() {
+        User userWithProfile = new User(1L, "USENRAME", "password", new Profile());
+        when(userRepository.findUserWithProfile(anyString())).thenReturn(Optional.of(userWithProfile));
+
+        var result = userServiceImpl.findUserWithProfile(userWithProfile.getUsername());
+        verify(userRepository).findUserWithProfile("USENRAME");
+        assertEquals(userWithProfile.getUsername(), result.getUsername());
     }
 }

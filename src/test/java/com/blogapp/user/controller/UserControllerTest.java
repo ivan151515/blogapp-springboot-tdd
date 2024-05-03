@@ -16,6 +16,8 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.*;
 
@@ -26,6 +28,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import com.blogapp.user.dto.AuthRequestDto;
 import com.blogapp.user.dto.LoginResponseDTO;
 import com.blogapp.user.dto.RegisterResponseDTO;
+import com.blogapp.user.dto.UserDTO;
+import com.blogapp.user.profile.Profile;
 import com.blogapp.user.service.UserService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -119,9 +123,13 @@ public class UserControllerTest {
     @Test
     @WithMockUser(username = "validUsername")
     void getLoggedInUserDetails_withUserReturnsProfile() throws Exception {
+        when(userService.findUserWithProfile(anyString())).thenReturn(new UserDTO("validUsername", new Profile()));
         mockMvc.perform(get("/api/auth/me")
-                .contentType(MediaType.APPLICATION_JSON)).andExpect(status().isOk());
-
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("username").value("validUsername"))
+                .andExpect(jsonPath("profile").exists());
+        verify(userService).findUserWithProfile("validUsername");
     }
 
     private static Stream<Arguments> provideInvalidAuthRequest() {
