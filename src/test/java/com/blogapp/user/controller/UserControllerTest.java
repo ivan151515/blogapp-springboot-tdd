@@ -12,6 +12,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -107,6 +108,20 @@ public class UserControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(new AuthRequestDto("validPassword", "validUsername"))))
                 .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    void getLoggedInUserDetails_noUserUnauthorized() throws Exception {
+        mockMvc.perform(get("/api/auth/me")
+                .contentType(MediaType.APPLICATION_JSON)).andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    @WithMockUser(username = "validUsername")
+    void getLoggedInUserDetails_withUserReturnsProfile() throws Exception {
+        mockMvc.perform(get("/api/auth/me")
+                .contentType(MediaType.APPLICATION_JSON)).andExpect(status().isOk());
+
     }
 
     private static Stream<Arguments> provideInvalidAuthRequest() {

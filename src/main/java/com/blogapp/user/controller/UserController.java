@@ -14,6 +14,7 @@ import lombok.AllArgsConstructor;
 import org.apache.coyote.BadRequestException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
@@ -33,5 +34,10 @@ public class UserController {
     public ResponseEntity<RegisterResponseDTO> register(@RequestBody @Valid AuthRequestDto authRequestDto)
             throws BadRequestException {
         return new ResponseEntity<RegisterResponseDTO>(userService.register(authRequestDto), HttpStatus.CREATED);
+    }
+
+    @GetMapping("/me")
+    public ResponseEntity<String> getLoggedInUser() {
+        return new ResponseEntity<String>("null", HttpStatus.OK);
     }
 }
