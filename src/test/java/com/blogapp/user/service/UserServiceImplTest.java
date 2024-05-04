@@ -31,6 +31,8 @@ import com.blogapp.user.profile.Profile;
 import com.blogapp.user.profile.ProfileUpdateDto;
 import com.blogapp.user.repository.UserRepository;
 
+import jakarta.persistence.EntityNotFoundException;
+
 @ExtendWith(MockitoExtension.class)
 public class UserServiceImplTest {
 
@@ -129,6 +131,9 @@ public class UserServiceImplTest {
 
     @Test
     void whenUserNotFoundThrows() {
-        // TODO:
+        when(userRepository.findUserWithProfile(anyString())).thenReturn(Optional.empty());
+
+        assertThrows(EntityNotFoundException.class,
+                () -> userServiceImpl.updateUserProfile("username", ProfileUpdateDto.builder().build()));
     }
 }

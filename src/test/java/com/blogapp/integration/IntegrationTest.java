@@ -2,6 +2,7 @@ package com.blogapp.integration;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -19,6 +20,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 
 import com.blogapp.user.dto.AuthRequestDto;
+import com.blogapp.user.profile.ProfileUpdateDto;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -75,4 +77,18 @@ public class IntegrationTest {
                 .andExpect(jsonPath("profile.id").value(1));
 
     }
+
+    @Order(5)
+    @Test
+    void updateProfile() throws Exception {
+        mockMvc.perform(put(("/api/auth/me"))
+                .contentType(MediaType.APPLICATION_JSON)
+                .header(AUTHORIZATION, "Bearer " + token)
+                .content(objectMapper.writeValueAsString(ProfileUpdateDto.builder().bio("new bio").age(22).build())))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("profile.bio").value("new bio"))
+                .andExpect(jsonPath("username").value("validUsername"))
+                .andExpect(jsonPath("profile.age").value(22));
+    }
+
 }
