@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.blogapp.blog.entity.Blog;
+import com.blogapp.blog.dto.BlogsInfoDTO;
 import com.blogapp.blog.service.BlogService;
 
 import lombok.RequiredArgsConstructor;
@@ -19,8 +19,8 @@ public class BlogController {
     private final BlogService blogService;
 
     @GetMapping
-    public List<Blog> getBlogs() {
+    public List<BlogsInfoDTO> getBlogs() {
 
-        return List.of();
+        return blogService.getBlogs();
     }
 }
