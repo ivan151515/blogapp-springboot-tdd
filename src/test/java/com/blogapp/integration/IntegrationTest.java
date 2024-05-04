@@ -60,6 +60,13 @@ public class IntegrationTest {
 
     @Order(3)
     @Test
+    void noAuthGetMe_unAuthorized() throws Exception {
+        mockMvc.perform(get("/api/auth/me")
+                .contentType(MediaType.APPLICATION_JSON)).andExpect(status().isUnauthorized());
+    }
+
+    @Order(4)
+    @Test
     void getMe() throws Exception {
         mockMvc.perform(get("/api/auth/me")
                 .contentType(MediaType.APPLICATION_JSON)

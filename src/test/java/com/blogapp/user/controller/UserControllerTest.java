@@ -30,6 +30,7 @@ import com.blogapp.user.dto.LoginResponseDTO;
 import com.blogapp.user.dto.RegisterResponseDTO;
 import com.blogapp.user.dto.UserDTO;
 import com.blogapp.user.profile.Profile;
+import com.blogapp.user.profile.ProfileUpdateDto;
 import com.blogapp.user.service.UserService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -123,13 +124,35 @@ public class UserControllerTest {
     @Test
     @WithMockUser(username = "validUsername")
     void getLoggedInUserDetails_withUserReturnsProfile() throws Exception {
-        when(userService.findUserWithProfile(anyString())).thenReturn(new UserDTO("validUsername", new Profile()));
+        when(userService.findUserWithProfile(anyString())).thenReturn(new UserDTO(1l, "validUsername", new Profile()));
         mockMvc.perform(get("/api/auth/me")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("username").value("validUsername"))
                 .andExpect(jsonPath("profile").exists());
         verify(userService).findUserWithProfile("validUsername");
+    }
+
+    @Test
+    void updateProfile_unauthorized() throws JsonProcessingException, Exception {
+        mockMvc.perform(put("/api/auth/me")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(new ProfileUpdateDto("io", 2, "pliumber"))))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    @WithMockUser(username = "username")
+    void updateProfile_success() throws JsonProcessingException, Exception {
+        when(userService.updateUserProfile(anyString(), any(ProfileUpdateDto.class)))
+                .thenReturn(new UserDTO(1l, "username", new Profile(1L, "io", "pliumber", 2)));
+        mockMvc.perform(put("/api/auth/me")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(new ProfileUpdateDto("io", 2, "pliumber"))))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("profile.bio").value("io")).andExpect(jsonPath("profile.age").value(2));
+
+        verify(userService).updateUserProfile(anyString(), any(ProfileUpdateDto.class));
     }
 
     private static Stream<Arguments> provideInvalidAuthRequest() {

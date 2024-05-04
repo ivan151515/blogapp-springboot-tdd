@@ -1,6 +1,7 @@
 package com.blogapp.user.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -27,6 +28,7 @@ import com.blogapp.security.jwt.JwtService;
 import com.blogapp.user.dto.AuthRequestDto;
 import com.blogapp.user.entity.User;
 import com.blogapp.user.profile.Profile;
+import com.blogapp.user.profile.ProfileUpdateDto;
 import com.blogapp.user.repository.UserRepository;
 
 @ExtendWith(MockitoExtension.class)
@@ -108,5 +110,25 @@ public class UserServiceImplTest {
         var result = userServiceImpl.findUserWithProfile(userWithProfile.getUsername());
         verify(userRepository).findUserWithProfile("USENRAME");
         assertEquals(userWithProfile.getUsername(), result.getUsername());
+    }
+
+    @Test
+    void updateUserProfileWhenUserFound() {
+        User returnedUser = new User(null, "username", null, new Profile(1L, "fakebio", null, 23));
+        when(userRepository.findUserWithProfile("username")).thenReturn(Optional.of(returnedUser));
+        when(userRepository.save(returnedUser)).thenReturn(returnedUser);
+        ProfileUpdateDto profileUpdateDto = ProfileUpdateDto.builder().age(22).bio("realbio").build();
+        var result = userServiceImpl.updateUserProfile("username", profileUpdateDto);
+
+        assertEquals(result.getProfile().getAge(), profileUpdateDto.getAge());
+        assertEquals(result.getUsername(), "username");
+        assertNull(result.getProfile().getOccupation());
+
+        verify(userRepository).save(returnedUser);
+    }
+
+    @Test
+    void whenUserNotFoundThrows() {
+        // TODO:
     }
 }

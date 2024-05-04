@@ -15,6 +15,7 @@ import com.blogapp.user.dto.RegisterResponseDTO;
 import com.blogapp.user.dto.UserDTO;
 import com.blogapp.user.entity.User;
 import com.blogapp.user.profile.Profile;
+import com.blogapp.user.profile.ProfileUpdateDto;
 import com.blogapp.user.repository.UserRepository;
 
 import jakarta.persistence.EntityNotFoundException;
@@ -64,7 +65,27 @@ public class UserServiceImpl implements UserService {
         var user = userRepository.findUserWithProfile(username)
                 .orElseThrow(() -> new EntityNotFoundException("user not found"));
 
-        return new UserDTO(user.getUsername(), user.getProfile());
+        return new UserDTO(user.getId(), user.getUsername(), user.getProfile());
+    }
+
+    @Override
+    public UserDTO updateUserProfile(String username, ProfileUpdateDto profileUpdateDto) {
+        User user = userRepository.findUserWithProfile(username)
+                .orElseThrow(() -> new EntityNotFoundException("user not found"));
+
+        if (profileUpdateDto.getAge() != null) {
+            user.getProfile().setAge(profileUpdateDto.getAge());
+        }
+        if (profileUpdateDto.getBio() != null) {
+            user.getProfile().setBio(profileUpdateDto.getBio());
+        }
+        if (profileUpdateDto.getOccupation() != null) {
+            user.getProfile().setOccupation(profileUpdateDto.getOccupation());
+        }
+
+        User savedUser = userRepository.save(user);
+
+        return new UserDTO(savedUser.getId(), savedUser.getUsername(), savedUser.getProfile());
     }
 
 }
