@@ -9,6 +9,7 @@ import com.blogapp.blog.dto.BlogFullDTO;
 import com.blogapp.blog.dto.BlogsInfoDTO;
 import com.blogapp.blog.repository.BlogRepository;
 
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 
@@ -28,8 +29,9 @@ public class BlogServiceImpl implements BlogService {
 
     @Override
     public BlogFullDTO getBlogById(Long id) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getBlogById'");
+        var blog = blogRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("NOT FOUND"));
+
+        return BlogFullDTO.mapBlogToBlogFullDTO(blog);
     }
 
 }

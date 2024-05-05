@@ -3,13 +3,18 @@ package com.blogapp.blog.controller;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Stream;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -19,11 +24,15 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
 import com.blogapp.blog.comments.dto.CommentDTO;
+import com.blogapp.blog.dto.BlogCreateDTO;
 import com.blogapp.blog.dto.BlogFullDTO;
 import com.blogapp.blog.dto.BlogsInfoDTO;
 import com.blogapp.blog.service.BlogService;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import jakarta.persistence.EntityNotFoundException;
+import net.bytebuddy.utility.RandomString;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -32,7 +41,7 @@ public class BlogControllerTest {
     @Autowired
     MockMvc mockMvc;
 
-    // private ObjectMapper objectMapper = new ObjectMapper();
+    private ObjectMapper objectMapper = new ObjectMapper();
 
     @MockBean
     private BlogService blogService;
@@ -83,5 +92,37 @@ public class BlogControllerTest {
                 .andExpect(status().isNotFound());
 
         verify(blogService).getBlogById(2L);
+    }
+
+    @Test
+    void postBlog_unauthorized() throws Exception {
+        mockMvc.perform(post("/api/blogs"))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @WithMockUser
+    @ParameterizedTest
+    @MethodSource("provideInvalidPostRequest")
+    void postBlog_invalidRequestBodyBadRequest(BlogCreateDTO dto) throws JsonProcessingException, Exception {
+        if (dto.getContent() != null) {
+            System.out.println(dto.getContent().length());
+        }
+        mockMvc.perform(post("/api/blogs")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(dto)))
+                .andExpect(status().isBadRequest());
+        // mockMvc(post("/api/blogs")
+        // .contentType(MediaType.APPLICATION_JSON)
+        // .content(objectMapper.writeValueAsString(dto))
+    }
+
+    private static Stream<Arguments> provideInvalidPostRequest() {
+        return Stream.of(
+                Arguments.of(new BlogCreateDTO(null, null, null)),
+                Arguments.of(new BlogCreateDTO("asd", "dad", null)),
+                Arguments.of(new BlogCreateDTO("asd", "dad", true)),
+                Arguments.of(new BlogCreateDTO("validTitle", RandomString.make(400), true)),
+                Arguments.of(new BlogCreateDTO(null, "validUsername", true)),
+                Arguments.of(new BlogCreateDTO("validpassword", null, false)));
     }
 }
