@@ -120,7 +120,8 @@ public class BlogControllerTest {
         var b = new BlogCreateDTO("validTitle", RandomString.make(200), true);
         var returnedBlog = new Blog(1L, "validTitle", b.getContent(), true,
                 new User(1L, "username", null, null), LocalDateTime.now(), List.of());
-        when(blogService.createBlog(any(BlogCreateDTO.class), anyString())).thenReturn(returnedBlog);
+        when(blogService.createBlog(any(BlogCreateDTO.class), anyString()))
+                .thenReturn(BlogFullDTO.mapBlogToBlogFullDTO(returnedBlog));
 
         mockMvc.perform(post("/api/blogs")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -128,7 +129,7 @@ public class BlogControllerTest {
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("title").value("validTitle"))
                 .andExpect(jsonPath("id").value(1L))
-                .andExpect(jsonPath("user.username").value("username"));
+                .andExpect(jsonPath("username").value("username"));
 
         verify(blogService).createBlog(any(BlogCreateDTO.class), anyString());
     }

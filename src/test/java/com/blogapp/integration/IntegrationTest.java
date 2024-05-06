@@ -19,6 +19,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 
+import com.blogapp.blog.dto.BlogCreateDTO;
 import com.blogapp.user.dto.AuthRequestDto;
 import com.blogapp.user.profile.ProfileUpdateDto;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -91,4 +92,20 @@ public class IntegrationTest {
                 .andExpect(jsonPath("profile.age").value(22));
     }
 
+    @Order(6)
+    @Test
+    void createBlog() throws Exception {
+        var b = new BlogCreateDTO("title", "this is great content right here", true);
+
+        mockMvc.perform(post("/api/blogs")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(b))
+                .header(AUTHORIZATION, "Bearer " + token))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("id").value(1))
+                .andExpect(jsonPath("username").value("validUsername"))
+                .andExpect(jsonPath("title").value("title"))
+                .andExpect(jsonPath("createdAt").isNotEmpty())
+                .andExpect(jsonPath("user.password").doesNotExist());
+    }
 }

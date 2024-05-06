@@ -88,10 +88,12 @@ public class BlogServiceImplTest {
         var u = new User(1L, "username", null, null);
         var savedBlog = new Blog(1L, b.getTitle(), b.getContent(), b.getImportant(), u, LocalDateTime.now(), List.of());
         when(userRepository.findByUsername("username")).thenReturn(Optional.of(u));
-        when(blogRepository.save(any(Blog.class))).thenReturn(savedBlog);
+        when(blogRepository.saveAndFlush(any(Blog.class))).thenReturn(savedBlog);
         var result = blogServiceImpl.createBlog(b, "username");
 
-        assertEquals(savedBlog, result);
-        verify(blogRepository).save(any(Blog.class));
+        assertEquals(savedBlog.getId(), result.getId());
+        assertEquals(savedBlog.getContent(), result.getContent());
+        assertEquals(savedBlog.getUser().getUsername(), result.getUsername());
+        verify(blogRepository).saveAndFlush(any(Blog.class));
     }
 }

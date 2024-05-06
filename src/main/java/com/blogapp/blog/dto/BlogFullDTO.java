@@ -31,8 +31,11 @@ public class BlogFullDTO {
 
     public static BlogFullDTO mapBlogToBlogFullDTO(Blog blog) {
         return BlogFullDTO.builder()
-                .comments(blog.getComments().stream().map(CommentDTO::mappCommentToCommentDTO)
-                        .collect(Collectors.toList()))
+                .comments(
+                        blog.getComments() != null
+                                ? blog.getComments().stream().map(CommentDTO::mappCommentToCommentDTO)
+                                        .collect(Collectors.toList())
+                                : null)
                 .username(blog.getUser().getUsername())
                 .userId(blog.getUser().getId())
                 .title(blog.getTitle())

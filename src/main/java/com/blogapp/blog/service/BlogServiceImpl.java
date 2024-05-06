@@ -21,8 +21,8 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class BlogServiceImpl implements BlogService {
 
-    private BlogRepository blogRepository;
-    private UserRepository userRepository;
+    private final BlogRepository blogRepository;
+    private final UserRepository userRepository;
 
     @Override
     public List<BlogsInfoDTO> getBlogs() {
@@ -39,15 +39,15 @@ public class BlogServiceImpl implements BlogService {
     }
 
     @Override
-    public Blog createBlog(BlogCreateDTO blogCreateDTO, String username) {
+    public BlogFullDTO createBlog(BlogCreateDTO blogCreateDTO, String username) {
         var user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new EntityNotFoundException(username + " not found"));
 
         var b = Blog.builder().content(blogCreateDTO.getContent()).title(blogCreateDTO.getTitle())
                 .important(blogCreateDTO.getImportant()).user(user).build();
 
-        var x = blogRepository.save(b);
-        return x;
+        var x = blogRepository.saveAndFlush(b);
+        return BlogFullDTO.mapBlogToBlogFullDTO(x);
     }
 
 }
