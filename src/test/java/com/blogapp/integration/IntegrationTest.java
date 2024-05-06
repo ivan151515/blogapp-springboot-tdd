@@ -20,6 +20,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 
 import com.blogapp.blog.dto.BlogCreateDTO;
+import com.blogapp.blog.dto.BlogUpdateDTO;
 import com.blogapp.user.dto.AuthRequestDto;
 import com.blogapp.user.profile.ProfileUpdateDto;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -126,7 +127,6 @@ public class IntegrationTest {
     @Order(8)
     @Test
     void getBlogById() throws Exception {
-        // TODO:
         mockMvc.perform(get("/api/blogs/1")
                 .header(AUTHORIZATION, "Bearer " + token))
                 .andExpect(status().isOk())
@@ -135,5 +135,19 @@ public class IntegrationTest {
                 .andExpect(jsonPath("title").value("title"))
                 .andExpect(jsonPath("createdAt").isNotEmpty())
                 .andExpect(jsonPath("user.password").doesNotExist());
+    }
+
+    @Order(9)
+    @Test
+    void updateBlog() throws Exception {
+        mockMvc.perform(put("/api/blogs/1")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(new BlogUpdateDTO("updated content", true)))
+                .header(AUTHORIZATION, "Bearer " + token))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("content").value("updated content"))
+                .andExpect(jsonPath("id").value(1))
+                .andExpect(jsonPath("important").value(true))
+                .andExpect(jsonPath("username").value("validUsername"));
     }
 }

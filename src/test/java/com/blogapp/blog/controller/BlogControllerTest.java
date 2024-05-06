@@ -1,6 +1,7 @@
 package com.blogapp.blog.controller;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -29,6 +30,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import com.blogapp.blog.comments.dto.CommentDTO;
 import com.blogapp.blog.dto.BlogCreateDTO;
 import com.blogapp.blog.dto.BlogFullDTO;
+import com.blogapp.blog.dto.BlogUpdateDTO;
 import com.blogapp.blog.dto.BlogsInfoDTO;
 import com.blogapp.blog.entity.Blog;
 import com.blogapp.blog.service.BlogService;
@@ -140,6 +142,60 @@ public class BlogControllerTest {
         mockMvc.perform(put("/api/blogs/1")).andExpect(status().isUnauthorized());
     }
 
+    @Test
+    @WithMockUser()
+    void updateBlogUserDoesNotOwntheBlogForbidden() throws Exception {
+        when(blogService.updateBlog(any(BlogUpdateDTO.class), anyString(), anyLong()))
+                .thenThrow(new RuntimeException("action not allowed"));
+
+        mockMvc.perform(put("/api/blogs/2")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(new BlogUpdateDTO())))
+                .andExpect(status().isBadRequest());
+        verify(blogService).updateBlog(any(BlogUpdateDTO.class), anyString(), anyLong());
+
+    }
+
+    @Test
+    @WithMockUser
+    void updateBlogServiceThrowsNotFound() throws JsonProcessingException, Exception {
+        when(blogService.updateBlog(any(BlogUpdateDTO.class), anyString(), anyLong()))
+                .thenThrow(new EntityNotFoundException("action not allowed"));
+
+        mockMvc.perform(put("/api/blogs/2")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(new BlogUpdateDTO())))
+                .andExpect(status().isNotFound());
+
+        verify(blogService).updateBlog(any(BlogUpdateDTO.class), anyString(), anyLong());
+    }
+
+    @ParameterizedTest
+    @MethodSource("provideInvalidPutRequest")
+    @WithMockUser
+    void updateBlogServiceInvalidRequestBody(BlogUpdateDTO blogUpdateDTO) throws JsonProcessingException, Exception {
+        mockMvc.perform(put("/api/blogs/2")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(blogUpdateDTO)))
+                .andExpect(status().isBadRequest());
+
+    }
+
+    @ParameterizedTest
+    @WithMockUser
+    @MethodSource("provideValidPutRequest")
+    void updateBlogValidRequestBodyUpdatesSuccessfully(BlogUpdateDTO blogUpdateDTO)
+            throws JsonProcessingException, Exception {
+        var b = new Blog(1L, "validTitle", RandomString.make(200), true,
+                new User(1L, "username", null, null), LocalDateTime.now(), List.of());
+        when(blogService.updateBlog(any(BlogUpdateDTO.class), anyString(), anyLong()))
+                .thenReturn(BlogFullDTO.mapBlogToBlogFullDTO(b));
+
+        mockMvc.perform(put("/api/blogs/1")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(blogUpdateDTO)));
+    }
+
     private static Stream<Arguments> provideInvalidPostRequest() {
         return Stream.of(
                 Arguments.of(new BlogCreateDTO(null, null, null)),
@@ -148,5 +204,18 @@ public class BlogControllerTest {
                 Arguments.of(new BlogCreateDTO("validTitle", RandomString.make(400), true)),
                 Arguments.of(new BlogCreateDTO(null, "validUsername", true)),
                 Arguments.of(new BlogCreateDTO("validpassword", null, false)));
+    }
+
+    private static Stream<Arguments> provideInvalidPutRequest() {
+        return Stream.of(
+                Arguments.of(new BlogUpdateDTO(RandomString.make(500), null)),
+                Arguments.of(new BlogUpdateDTO("asd", false)));
+    }
+
+    private static Stream<Arguments> provideValidPutRequest() {
+        return Stream.of(
+                Arguments.of(new BlogUpdateDTO(RandomString.make(150), null)),
+                Arguments.of(new BlogUpdateDTO(RandomString.make(150), true)),
+                Arguments.of(new BlogUpdateDTO(null, false)));
     }
 }
