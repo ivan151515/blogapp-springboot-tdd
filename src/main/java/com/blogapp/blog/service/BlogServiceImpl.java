@@ -10,6 +10,7 @@ import com.blogapp.blog.dto.BlogFullDTO;
 import com.blogapp.blog.dto.BlogsInfoDTO;
 import com.blogapp.blog.entity.Blog;
 import com.blogapp.blog.repository.BlogRepository;
+import com.blogapp.user.repository.UserRepository;
 
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
@@ -21,6 +22,7 @@ import lombok.RequiredArgsConstructor;
 public class BlogServiceImpl implements BlogService {
 
     private BlogRepository blogRepository;
+    private UserRepository userRepository;
 
     @Override
     public List<BlogsInfoDTO> getBlogs() {
@@ -37,9 +39,15 @@ public class BlogServiceImpl implements BlogService {
     }
 
     @Override
-    public Blog createBlog(BlogCreateDTO b, String username) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'createBlog'");
+    public Blog createBlog(BlogCreateDTO blogCreateDTO, String username) {
+        var user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new EntityNotFoundException(username + " not found"));
+
+        var b = Blog.builder().content(blogCreateDTO.getContent()).title(blogCreateDTO.getTitle())
+                .important(blogCreateDTO.getImportant()).user(user).build();
+
+        var x = blogRepository.save(b);
+        return x;
     }
 
 }
