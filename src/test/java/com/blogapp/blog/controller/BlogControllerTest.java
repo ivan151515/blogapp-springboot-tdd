@@ -27,6 +27,7 @@ import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
+import com.blogapp.blog.comments.dto.CommentCreateDTO;
 import com.blogapp.blog.comments.dto.CommentDTO;
 import com.blogapp.blog.dto.BlogCreateDTO;
 import com.blogapp.blog.dto.BlogFullDTO;
@@ -194,6 +195,51 @@ public class BlogControllerTest {
         mockMvc.perform(put("/api/blogs/1")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(blogUpdateDTO)));
+    }
+
+    @Test
+    void addCommentUnauthorized() throws JsonProcessingException, Exception {
+        mockMvc.perform(post(("/api/blogs/1"))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(new CommentCreateDTO("new comment"))))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @WithMockUser
+    @Test
+    void addCommentBlogNotFound() throws JsonProcessingException, Exception {
+        when(blogService.addComment(any(CommentCreateDTO.class))).thenThrow(new EntityNotFoundException("not found"));
+
+        mockMvc.perform(post(("/api/blogs/1"))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(new CommentCreateDTO("new comment"))))
+                .andExpect(status().isNotFound());
+
+        verify(blogService).addComment(any(CommentCreateDTO.class));
+    }
+
+    @ParameterizedTest
+    @MethodSource("provideInvalidCommentCreateDTO")
+    @WithMockUser
+    void addCommentInvalidRequestBody(CommentCreateDTO commentCreateDTO) throws JsonProcessingException, Exception {
+        mockMvc.perform(post(("/api/blogs/1"))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(commentCreateDTO)))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    @WithMockUser
+    void addCommentValidRequest() {
+        // TODO:
+    }
+
+    private static Stream<Arguments> provideInvalidCommentCreateDTO() {
+        return Stream.of(
+                Arguments.of(new CommentCreateDTO(RandomString.make(500))),
+                Arguments.of(new CommentCreateDTO("")),
+                Arguments.of(new CommentCreateDTO()),
+                Arguments.of(new CommentCreateDTO("s")));
     }
 
     private static Stream<Arguments> provideInvalidPostRequest() {

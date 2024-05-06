@@ -5,6 +5,8 @@ import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
+import com.blogapp.blog.comments.dto.CommentCreateDTO;
+import com.blogapp.blog.comments.dto.CommentDTO;
 import com.blogapp.blog.dto.BlogCreateDTO;
 import com.blogapp.blog.dto.BlogFullDTO;
 import com.blogapp.blog.dto.BlogUpdateDTO;
@@ -67,6 +69,12 @@ public class BlogServiceImpl implements BlogService {
         }
 
         return BlogFullDTO.mapBlogToBlogFullDTO(blogRepository.saveAndFlush(b));
+    }
+
+    @Override
+    public CommentDTO addComment(CommentCreateDTO any) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'addComment'");
     }
 
 }

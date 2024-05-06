@@ -13,6 +13,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.blogapp.blog.comments.dto.CommentCreateDTO;
+import com.blogapp.blog.comments.dto.CommentDTO;
 import com.blogapp.blog.dto.BlogCreateDTO;
 import com.blogapp.blog.dto.BlogFullDTO;
 import com.blogapp.blog.dto.BlogUpdateDTO;
@@ -58,4 +60,9 @@ public class BlogController {
                 HttpStatus.OK);
     }
 
+    @PostMapping("/{id}")
+    public ResponseEntity<CommentDTO> addComment(@RequestBody @Valid CommentCreateDTO commentCreateDTO,
+            Authentication authentication) {
+        return new ResponseEntity<CommentDTO>(blogService.addComment(commentCreateDTO), HttpStatus.CREATED);
+    }
 }
