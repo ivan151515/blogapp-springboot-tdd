@@ -5,8 +5,10 @@ import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
+import com.blogapp.blog.dto.BlogCreateDTO;
 import com.blogapp.blog.dto.BlogFullDTO;
 import com.blogapp.blog.dto.BlogsInfoDTO;
+import com.blogapp.blog.entity.Blog;
 import com.blogapp.blog.repository.BlogRepository;
 
 import jakarta.persistence.EntityNotFoundException;
@@ -32,6 +34,12 @@ public class BlogServiceImpl implements BlogService {
         var blog = blogRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("NOT FOUND"));
 
         return BlogFullDTO.mapBlogToBlogFullDTO(blog);
+    }
+
+    @Override
+    public Blog createBlog(BlogCreateDTO b, String username) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'createBlog'");
     }
 
 }

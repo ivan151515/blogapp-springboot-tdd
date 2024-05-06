@@ -1,5 +1,7 @@
 package com.blogapp.blog.controller;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -27,7 +29,9 @@ import com.blogapp.blog.comments.dto.CommentDTO;
 import com.blogapp.blog.dto.BlogCreateDTO;
 import com.blogapp.blog.dto.BlogFullDTO;
 import com.blogapp.blog.dto.BlogsInfoDTO;
+import com.blogapp.blog.entity.Blog;
 import com.blogapp.blog.service.BlogService;
+import com.blogapp.user.entity.User;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -104,16 +108,29 @@ public class BlogControllerTest {
     @ParameterizedTest
     @MethodSource("provideInvalidPostRequest")
     void postBlog_invalidRequestBodyBadRequest(BlogCreateDTO dto) throws JsonProcessingException, Exception {
-        if (dto.getContent() != null) {
-            System.out.println(dto.getContent().length());
-        }
         mockMvc.perform(post("/api/blogs")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(dto)))
                 .andExpect(status().isBadRequest());
-        // mockMvc(post("/api/blogs")
-        // .contentType(MediaType.APPLICATION_JSON)
-        // .content(objectMapper.writeValueAsString(dto))
+    }
+
+    @WithMockUser(username = "username")
+    @Test
+    void postBlog_validRequest() throws JsonProcessingException, Exception {
+        var b = new BlogCreateDTO("validTitle", RandomString.make(200), true);
+        var returnedBlog = new Blog(1L, "validTitle", b.getContent(), true,
+                new User(1L, "username", null, null), LocalDateTime.now(), List.of());
+        when(blogService.createBlog(any(BlogCreateDTO.class), anyString())).thenReturn(returnedBlog);
+
+        mockMvc.perform(post("/api/blogs")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(b)))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("title").value("validTitle"))
+                .andExpect(jsonPath("id").value(1L))
+                .andExpect(jsonPath("user.username").value("username"));
+
+        verify(blogService).createBlog(any(BlogCreateDTO.class), anyString());
     }
 
     private static Stream<Arguments> provideInvalidPostRequest() {

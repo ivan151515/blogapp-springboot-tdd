@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.blogapp.blog.dto.BlogCreateDTO;
 import com.blogapp.blog.dto.BlogFullDTO;
 import com.blogapp.blog.dto.BlogsInfoDTO;
+import com.blogapp.blog.entity.Blog;
 import com.blogapp.blog.service.BlogService;
 
 import jakarta.validation.Valid;
@@ -39,9 +40,11 @@ public class BlogController {
     }
 
     @PostMapping
-    public ResponseEntity<BlogFullDTO> createBlog(@RequestBody @Valid BlogCreateDTO blogCreateDTO,
+    public ResponseEntity<Blog> createBlog(@RequestBody @Valid BlogCreateDTO blogCreateDTO,
             Authentication authentication) {
 
-        return new ResponseEntity<BlogFullDTO>(HttpStatus.CREATED);
+        var b = blogService.createBlog(blogCreateDTO, authentication.getName());
+
+        return new ResponseEntity<Blog>(b, HttpStatus.CREATED);
     }
 }
