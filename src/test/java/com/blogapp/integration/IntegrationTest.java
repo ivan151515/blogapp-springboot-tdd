@@ -108,4 +108,32 @@ public class IntegrationTest {
                 .andExpect(jsonPath("createdAt").isNotEmpty())
                 .andExpect(jsonPath("user.password").doesNotExist());
     }
+
+    @Order(7)
+    @Test
+    void getBlogs() throws Exception {
+        mockMvc.perform(get("/api/blogs")
+                .header(AUTHORIZATION, "Bearer " + token))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$").isArray())
+                .andExpect(jsonPath("$", org.hamcrest.Matchers.hasSize(1)))
+                .andExpect(jsonPath("$[0].id").value(1))
+                .andExpect(jsonPath("$[0].username").value("validUsername"))
+                .andExpect(jsonPath("$[0].title").value("title"))
+                .andExpect(jsonPath("$[0].createdAt").isNotEmpty());
+    }
+
+    @Order(8)
+    @Test
+    void getBlogById() throws Exception {
+        // TODO:
+        mockMvc.perform(get("/api/blogs/1")
+                .header(AUTHORIZATION, "Bearer " + token))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("id").value(1))
+                .andExpect(jsonPath("username").value("validUsername"))
+                .andExpect(jsonPath("title").value("title"))
+                .andExpect(jsonPath("createdAt").isNotEmpty())
+                .andExpect(jsonPath("user.password").doesNotExist());
+    }
 }

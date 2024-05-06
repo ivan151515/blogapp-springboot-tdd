@@ -6,6 +6,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -132,6 +133,11 @@ public class BlogControllerTest {
                 .andExpect(jsonPath("username").value("username"));
 
         verify(blogService).createBlog(any(BlogCreateDTO.class), anyString());
+    }
+
+    @Test
+    void updateBlogNoAuthUnauthorized() throws Exception {
+        mockMvc.perform(put("/api/blogs/1")).andExpect(status().isUnauthorized());
     }
 
     private static Stream<Arguments> provideInvalidPostRequest() {
