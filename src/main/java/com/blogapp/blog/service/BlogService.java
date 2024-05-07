@@ -23,4 +23,6 @@ public interface BlogService {
 
     void deleteComment(Long blogId, Long commentId, String username);
 
+    void deleteBlog(Long id, String username);
+
 }

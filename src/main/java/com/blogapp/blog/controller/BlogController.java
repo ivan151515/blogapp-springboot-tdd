@@ -74,4 +74,11 @@ public class BlogController {
         blogService.deleteComment(blogId, commentId, authentication.getName());
         return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
     }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteBlog(@PathVariable Long id, Authentication authentication) {
+        blogService.deleteBlog(id, authentication.getName());
+
+        return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
+    }
 }

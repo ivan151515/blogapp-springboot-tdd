@@ -93,4 +93,10 @@ public class BlogServiceImpl implements BlogService {
         blogRepository.saveAndFlush(b);
     }
 
+    @Override
+    public void deleteBlog(Long id, String username) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'deleteBlog'");
+    }
+
 }

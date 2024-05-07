@@ -274,6 +274,35 @@ public class BlogControllerTest {
         mockMvc.perform(delete("/api/blogs/1/comments/1")).andExpect(status().isNoContent());
     }
 
+    @Test
+    void deleteBlogUnauthenticated() throws Exception {
+        mockMvc.perform(delete("/api/blogs/1")).andExpect(status().isUnauthorized());
+
+    }
+
+    @Test
+    @WithMockUser
+    void deleteBlogNotFound() throws Exception {
+        doThrow(new EntityNotFoundException("not found")).when(blogService).deleteBlog(anyLong(), anyString());
+        mockMvc.perform(delete("/api/blogs/1")).andExpect(status().isNotFound());
+
+    }
+
+    @Test
+    @WithMockUser
+    void deleteBlogUserNotOwner() throws Exception {
+        doThrow(new RuntimeException("forbidden")).when(blogService).deleteBlog(anyLong(), anyString());
+        mockMvc.perform(delete("/api/blogs/1")).andExpect(status().isBadRequest());
+
+    }
+
+    @Test
+    @WithMockUser
+    void deleteBlogSuccessNoContent() throws Exception {
+        mockMvc.perform(delete("/api/blogs/1")).andExpect(status().isNoContent());
+
+    }
+
     private static Stream<Arguments> provideInvalidCommentCreateDTO() {
         return Stream.of(
                 Arguments.of(new CommentCreateDTO(RandomString.make(500))),
