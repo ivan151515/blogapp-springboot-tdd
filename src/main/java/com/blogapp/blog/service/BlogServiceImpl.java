@@ -95,8 +95,12 @@ public class BlogServiceImpl implements BlogService {
 
     @Override
     public void deleteBlog(Long id, String username) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'deleteBlog'");
+        var b = blogRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("not found"));
+
+        if (!b.getUser().getUsername().equals(username)) {
+            throw new RuntimeException("not allowed");
+        }
+        blogRepository.delete(b);
     }
 
 }

@@ -226,6 +226,37 @@ public class BlogServiceImplTest {
 
     }
 
+    @Test
+    void deleteBlogThrowNotFound() {
+        when(blogRepository.findById(anyLong())).thenReturn(Optional.empty());
+
+        assertThrows(EntityNotFoundException.class,
+                () -> blogServiceImpl.deleteBlog(1L, "username"));
+
+    }
+
+    @Test
+    void deleteBlogThrowNotAllowed() {
+        var b = Blog.builder().id(1L).user(new User(1L, "user1", null, null)).build();
+
+        when(blogRepository.findById(anyLong())).thenReturn(Optional.of(b));
+
+        assertThrows(RuntimeException.class,
+                () -> blogServiceImpl.deleteBlog(1L, "username"));
+
+    }
+
+    @Test
+    void deleteBlogSuccesfull() {
+        var b = Blog.builder().id(1L).user(new User(1L, "user1", null, null)).build();
+
+        when(blogRepository.findById(anyLong())).thenReturn(Optional.of(b));
+
+        blogServiceImpl.deleteBlog(1L, "user1");
+
+        verify(blogRepository).delete(any(Blog.class));
+    }
+
     private static Stream<Arguments> provideValidUpdateDTO() {
         return Stream.of(
                 Arguments.of(new BlogUpdateDTO(RandomString.make(150), null)),
