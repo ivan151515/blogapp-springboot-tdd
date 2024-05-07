@@ -184,8 +184,46 @@ public class BlogServiceImplTest {
     }
 
     @Test
-    void deleteComment() {
-        // TODO:
+    void deleteCommentBlogNotFoundThrowsNotFound() {
+        when(blogRepository.findById(anyLong())).thenReturn(Optional.empty());
+
+        assertThrows(EntityNotFoundException.class,
+                () -> blogServiceImpl.deleteComment(1L, 1l, "username"));
+    }
+
+    @Test
+    void deleteCommentCommentNotFound() {
+        var b = Blog.builder().comments(List.of()).build();
+        when(blogRepository.findById(anyLong())).thenReturn(Optional.of(b));
+
+        assertThrows(EntityNotFoundException.class,
+                () -> blogServiceImpl.deleteComment(1L, 1l, "username"));
+    }
+
+    @Test
+    void deleteCommentCommentUserNotOwnerThrows() {
+        var user = new User(1L, "notuser", null, null);
+        var b = Blog.builder().comments(List.of(new Comment(1L, user, null, null, null))).build();
+        when(blogRepository.findById(anyLong())).thenReturn(Optional.of(b));
+
+        assertThrows(RuntimeException.class,
+                () -> blogServiceImpl.deleteComment(1L, 1l, "username"));
+    }
+
+    @Test
+    void deleteCommentCommentDeletedSuccesfully() {
+        var user = new User(1L, "username", null, null);
+        var c1 = new Comment(1L, user, null, null, null);
+        var c2 = new Comment(2L, user, null, null, null);
+        var b = Blog.builder().id(1L).comments(List.of(c1, c2)).build();
+
+        when(blogRepository.findById(anyLong())).thenReturn(Optional.of(b));
+
+        blogServiceImpl.deleteComment(1L, 1L, "username");
+
+        assertEquals(b.getComments().size(), 1);
+        verify(blogRepository).saveAndFlush(any(Blog.class));
+
     }
 
     private static Stream<Arguments> provideValidUpdateDTO() {

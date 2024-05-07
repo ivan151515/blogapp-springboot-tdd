@@ -86,9 +86,11 @@ public class BlogServiceImpl implements BlogService {
     }
 
     @Override
-    public Object deleteComment(Long blogId, Long commentId, String username) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'deleteComment'");
+    public void deleteComment(Long blogId, Long commentId, String username) {
+        var b = blogRepository.findById(blogId).orElseThrow(() -> new EntityNotFoundException("not found"));
+        b.deleteComment(commentId, username);
+
+        blogRepository.saveAndFlush(b);
     }
 
 }

@@ -3,6 +3,7 @@ package com.blogapp.blog.controller;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
@@ -254,14 +255,15 @@ public class BlogControllerTest {
     @Test
     @WithMockUser(username = "username")
     void blogNotFound404() throws Exception {
-        when(blogService.deleteComment(1L, 1L, "username")).thenThrow(new EntityNotFoundException("NOT FOUND"));
+        doThrow(new EntityNotFoundException("not found")).when(blogService).deleteComment(any(), any(), any());
+
         mockMvc.perform(delete("/api/blogs/1/comments/1")).andExpect(status().isNotFound());
     }
 
     @Test
     @WithMockUser(username = "username")
     void userDoesNotOwnPostBadRequest() throws Exception {
-        when(blogService.deleteComment(1L, 1L, "username")).thenThrow(new RuntimeException("bad request"));
+        doThrow(new RuntimeException("bad request")).when(blogService).deleteComment(1L, 1L, "username");
         mockMvc.perform(delete("/api/blogs/1/comments/1")).andExpect(status().isBadRequest());
 
     }

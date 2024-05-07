@@ -11,6 +11,7 @@ import com.blogapp.user.entity.User;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
@@ -56,5 +57,25 @@ public class Blog {
 
     @OneToMany(mappedBy = "blog", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<Comment> comments;
+
+    public void deleteComment(Long commentId, String username) {
+        if (comments == null) {
+            throw new EntityNotFoundException("not found");
+        }
+
+        comments.forEach(c -> {
+            if (c.getId() == commentId && !c.getUser().getUsername().equals(username)) {
+                throw new RuntimeException("user not owner");
+            }
+        });
+        var size = comments.size();
+        comments = comments.stream().filter(
+                c -> c.getId() != commentId || (c.getId() == commentId && !c.getUser().getUsername().equals(username)))
+                .toList();
+
+        if (size == comments.size()) {
+            throw new EntityNotFoundException("not found");
+        }
+    }
 
 }
