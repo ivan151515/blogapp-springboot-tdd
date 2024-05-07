@@ -5,6 +5,7 @@ import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
@@ -208,14 +209,15 @@ public class BlogControllerTest {
     @WithMockUser
     @Test
     void addCommentBlogNotFound() throws JsonProcessingException, Exception {
-        when(blogService.addComment(any(CommentCreateDTO.class))).thenThrow(new EntityNotFoundException("not found"));
+        when(blogService.addComment(any(CommentCreateDTO.class), anyLong(), anyString()))
+                .thenThrow(new EntityNotFoundException("not found"));
 
         mockMvc.perform(post(("/api/blogs/1"))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(new CommentCreateDTO("new comment"))))
                 .andExpect(status().isNotFound());
 
-        verify(blogService).addComment(any(CommentCreateDTO.class));
+        verify(blogService).addComment(any(CommentCreateDTO.class), anyLong(), anyString());
     }
 
     @ParameterizedTest
@@ -229,9 +231,45 @@ public class BlogControllerTest {
     }
 
     @Test
-    @WithMockUser
-    void addCommentValidRequest() {
-        // TODO:
+    @WithMockUser(username = "username")
+    void addCommentValidRequest() throws JsonProcessingException, Exception {
+        when(blogService.addComment(any(CommentCreateDTO.class), anyLong(), anyString()))
+                .thenReturn(new CommentDTO("new comment", "username", 1l, LocalDateTime.now()));
+        mockMvc.perform(post("/api/blogs/1")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(new CommentCreateDTO("new commment"))))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("content").value("new comment"))
+                .andExpect(jsonPath("username").value("username"));
+
+        verify(blogService).addComment(any(CommentCreateDTO.class), anyLong(), anyString());
+    }
+
+    @Test
+    void deleteCommentUnauthenticated() throws Exception {
+        mockMvc.perform(delete(("/api/blogs/1/comments/1")))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    @WithMockUser(username = "username")
+    void blogNotFound404() throws Exception {
+        when(blogService.deleteComment(1L, 1L, "username")).thenThrow(new EntityNotFoundException("NOT FOUND"));
+        mockMvc.perform(delete("/api/blogs/1/comments/1")).andExpect(status().isNotFound());
+    }
+
+    @Test
+    @WithMockUser(username = "username")
+    void userDoesNotOwnPostBadRequest() throws Exception {
+        when(blogService.deleteComment(1L, 1L, "username")).thenThrow(new RuntimeException("bad request"));
+        mockMvc.perform(delete("/api/blogs/1/comments/1")).andExpect(status().isBadRequest());
+
+    }
+
+    @Test
+    @WithMockUser(username = "username")
+    void commentDeletedSuccesfully() throws Exception {
+        mockMvc.perform(delete("/api/blogs/1/comments/1")).andExpect(status().isNoContent());
     }
 
     private static Stream<Arguments> provideInvalidCommentCreateDTO() {

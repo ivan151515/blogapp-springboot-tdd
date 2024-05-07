@@ -5,6 +5,7 @@ import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
+import com.blogapp.blog.comments.Comment;
 import com.blogapp.blog.comments.dto.CommentCreateDTO;
 import com.blogapp.blog.comments.dto.CommentDTO;
 import com.blogapp.blog.dto.BlogCreateDTO;
@@ -13,6 +14,7 @@ import com.blogapp.blog.dto.BlogUpdateDTO;
 import com.blogapp.blog.dto.BlogsInfoDTO;
 import com.blogapp.blog.entity.Blog;
 import com.blogapp.blog.repository.BlogRepository;
+import com.blogapp.blog.repository.CommentRepository;
 import com.blogapp.user.repository.UserRepository;
 
 import jakarta.persistence.EntityNotFoundException;
@@ -26,6 +28,7 @@ public class BlogServiceImpl implements BlogService {
 
     private final BlogRepository blogRepository;
     private final UserRepository userRepository;
+    private final CommentRepository commentRepository;
 
     @Override
     public List<BlogsInfoDTO> getBlogs() {
@@ -72,9 +75,20 @@ public class BlogServiceImpl implements BlogService {
     }
 
     @Override
-    public CommentDTO addComment(CommentCreateDTO any) {
+    public CommentDTO addComment(CommentCreateDTO commentCreateDTO, Long blogId, String username) {
+        var blog = blogRepository.findById(blogId).orElseThrow(() -> new EntityNotFoundException("not found"));
+
+        var user = userRepository.findByUsername(username).orElseThrow(() -> new EntityNotFoundException("not found"));
+
+        var c = Comment.builder().blog(blog).content(commentCreateDTO.getContent()).user(user).build();
+
+        return CommentDTO.mappCommentToCommentDTO(commentRepository.saveAndFlush(c));
+    }
+
+    @Override
+    public Object deleteComment(Long blogId, Long commentId, String username) {
         // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'addComment'");
+        throw new UnsupportedOperationException("Unimplemented method 'deleteComment'");
     }
 
 }

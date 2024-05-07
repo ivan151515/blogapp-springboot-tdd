@@ -19,6 +19,8 @@ public interface BlogService {
 
     BlogFullDTO updateBlog(BlogUpdateDTO blogUpdateDTO, String username, long blogId);
 
-    CommentDTO addComment(CommentCreateDTO any);
+    CommentDTO addComment(CommentCreateDTO commentCreateDTO, Long blogId, String username);
+
+    Object deleteComment(Long blogId, Long commentId, String username);
 
 }

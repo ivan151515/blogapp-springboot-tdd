@@ -22,10 +22,12 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.blogapp.blog.comments.Comment;
+import com.blogapp.blog.comments.dto.CommentCreateDTO;
 import com.blogapp.blog.dto.BlogCreateDTO;
 import com.blogapp.blog.dto.BlogUpdateDTO;
 import com.blogapp.blog.entity.Blog;
 import com.blogapp.blog.repository.BlogRepository;
+import com.blogapp.blog.repository.CommentRepository;
 import com.blogapp.user.entity.User;
 import com.blogapp.user.repository.UserRepository;
 
@@ -37,6 +39,9 @@ public class BlogServiceImplTest {
 
     @Mock
     private UserRepository userRepository;
+
+    @Mock
+    CommentRepository commentRepository;
 
     @Mock
     BlogRepository blogRepository;
@@ -137,7 +142,7 @@ public class BlogServiceImplTest {
         when(blogRepository.findById(anyLong())).thenReturn(Optional.of(b));
         when(blogRepository.saveAndFlush(any(Blog.class))).thenReturn(blogToReturn);
         var result = blogServiceImpl.updateBlog(blogUpdateDTO, "user1", 1L);
-        // TODO:ž
+
         if (blogUpdateDTO.getImportant() != null) {
             assertEquals(blogUpdateDTO.getImportant(), result.getImportant());
         } else {
@@ -150,6 +155,37 @@ public class BlogServiceImplTest {
         }
         assertEquals(b.getTitle(), result.getTitle());
         verify(blogRepository).saveAndFlush(any(Blog.class));
+    }
+
+    @Test
+    void blogNotFoundThrows() {
+        when(blogRepository.findById(anyLong())).thenReturn(Optional.empty());
+
+        assertThrows(EntityNotFoundException.class,
+                () -> blogServiceImpl.addComment(new CommentCreateDTO(), 1L, "username"));
+    }
+
+    @Test
+    void addsCommentSuccessfully() {
+        var b = Blog.builder().id(1L).user(new User(1L, "user1", null, null)).build();
+        var u = new User(1l, "username", null, null);
+        when(blogRepository.findById(1L)).thenReturn(Optional.of(b));
+        when(userRepository.findByUsername("username")).thenReturn(Optional.of(u));
+        when(commentRepository.saveAndFlush(any(Comment.class)))
+                .thenReturn(
+                        Comment.builder().id(1L).user(u).content("new comment").createdAt(LocalDateTime.now()).blog(b)
+                                .build());
+        var result = blogServiceImpl.addComment(new CommentCreateDTO("new comment"), 1L, "username");
+
+        assertEquals(result.getContent(), "new comment");
+        assertEquals(result.getUsername(), "username");
+
+        verify(commentRepository).saveAndFlush(any(Comment.class));
+    }
+
+    @Test
+    void deleteComment() {
+        // TODO:
     }
 
     private static Stream<Arguments> provideValidUpdateDTO() {

@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -62,7 +63,15 @@ public class BlogController {
 
     @PostMapping("/{id}")
     public ResponseEntity<CommentDTO> addComment(@RequestBody @Valid CommentCreateDTO commentCreateDTO,
+            Authentication authentication, @PathVariable Long id) {
+        return new ResponseEntity<CommentDTO>(blogService.addComment(commentCreateDTO, id, authentication.getName()),
+                HttpStatus.CREATED);
+    }
+
+    @DeleteMapping("/{blogId}/comments/{commentId}")
+    public ResponseEntity<Void> deleteComment(@PathVariable Long blogId, @PathVariable Long commentId,
             Authentication authentication) {
-        return new ResponseEntity<CommentDTO>(blogService.addComment(commentCreateDTO), HttpStatus.CREATED);
+        blogService.deleteComment(blogId, commentId, authentication.getName());
+        return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
     }
 }

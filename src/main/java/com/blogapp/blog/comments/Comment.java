@@ -7,6 +7,7 @@ import org.hibernate.annotations.CreationTimestamp;
 import com.blogapp.blog.entity.Blog;
 import com.blogapp.user.entity.User;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -38,7 +39,8 @@ public class Comment {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY, cascade = { CascadeType.PERSIST, CascadeType.DETACH, CascadeType.MERGE,
+            CascadeType.REFRESH })
     @JoinColumn(name = "blog_id", nullable = false)
     private Blog blog;
 
