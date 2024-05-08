@@ -174,4 +174,12 @@ public class IntegrationTest {
                 .header(AUTHORIZATION, "Bearer " + token))
                 .andExpect(status().isNoContent());
     }
+
+    @Order(12)
+    @Test
+    void deleteBlog() throws Exception {
+        mockMvc.perform(delete("/api/blogs/1")
+                .header(AUTHORIZATION, "Bearer " + token))
+                .andExpect(status().isNoContent());
+    }
 }

@@ -195,7 +195,6 @@ public class BlogServiceImplTest {
     void deleteCommentCommentUserNotOwnerThrows() {
         var user = new User(1L, "notuser", null, null);
         var c = new Comment(1L, user, null, null, null);
-        var b = Blog.builder().comments(List.of(c)).build();
         when(commentRepository.findCommmentByIdandBlogId(anyLong(), anyLong())).thenReturn(Optional.of(c));
 
         assertThrows(RuntimeException.class,
