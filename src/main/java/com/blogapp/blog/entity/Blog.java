@@ -69,9 +69,9 @@ public class Blog {
             }
         });
         var size = comments.size();
-        comments = comments.stream().filter(
+        setComments(comments.stream().filter(
                 c -> c.getId() != commentId || (c.getId() == commentId && !c.getUser().getUsername().equals(username)))
-                .toList();
+                .toList());
 
         if (size == comments.size()) {
             throw new EntityNotFoundException("not found");

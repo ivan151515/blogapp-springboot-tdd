@@ -8,13 +8,13 @@ import org.springframework.stereotype.Service;
 import com.blogapp.blog.comments.Comment;
 import com.blogapp.blog.comments.dto.CommentCreateDTO;
 import com.blogapp.blog.comments.dto.CommentDTO;
+import com.blogapp.blog.comments.repository.CommentRepository;
 import com.blogapp.blog.dto.BlogCreateDTO;
 import com.blogapp.blog.dto.BlogFullDTO;
 import com.blogapp.blog.dto.BlogUpdateDTO;
 import com.blogapp.blog.dto.BlogsInfoDTO;
 import com.blogapp.blog.entity.Blog;
 import com.blogapp.blog.repository.BlogRepository;
-import com.blogapp.blog.repository.CommentRepository;
 import com.blogapp.user.repository.UserRepository;
 
 import jakarta.persistence.EntityNotFoundException;
@@ -87,10 +87,14 @@ public class BlogServiceImpl implements BlogService {
 
     @Override
     public void deleteComment(Long blogId, Long commentId, String username) {
-        var b = blogRepository.findById(blogId).orElseThrow(() -> new EntityNotFoundException("not found"));
-        b.deleteComment(commentId, username);
+        var c = commentRepository.findCommmentByIdandBlogId(commentId, blogId)
+                .orElseThrow(() -> new EntityNotFoundException("not found"));
 
-        blogRepository.saveAndFlush(b);
+        if (!c.getUser().getUsername().equals(username)) {
+            throw new RuntimeException("forbidden");
+        }
+
+        commentRepository.delete(c);
     }
 
     @Override

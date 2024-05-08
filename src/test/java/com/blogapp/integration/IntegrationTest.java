@@ -1,5 +1,6 @@
 package com.blogapp.integration;
 
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
@@ -19,6 +20,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 
+import com.blogapp.blog.comments.dto.CommentCreateDTO;
 import com.blogapp.blog.dto.BlogCreateDTO;
 import com.blogapp.blog.dto.BlogUpdateDTO;
 import com.blogapp.user.dto.AuthRequestDto;
@@ -149,5 +151,27 @@ public class IntegrationTest {
                 .andExpect(jsonPath("id").value(1))
                 .andExpect(jsonPath("important").value(true))
                 .andExpect(jsonPath("username").value("validUsername"));
+    }
+
+    @Order(10)
+    @Test
+    void addComment() throws Exception {
+        mockMvc.perform(post("/api/blogs/1")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(new CommentCreateDTO("new comment!")))
+                .header(AUTHORIZATION, "Bearer " + token))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("content").value("new comment!"))
+                .andExpect(jsonPath("id").value(1))
+                .andExpect(jsonPath("createdAt").exists())
+                .andExpect(jsonPath("username").value("validUsername"));
+    }
+
+    @Order(11)
+    @Test
+    void deleteComment() throws Exception {
+        mockMvc.perform(delete("/api/blogs/1/comments/1")
+                .header(AUTHORIZATION, "Bearer " + token))
+                .andExpect(status().isNoContent());
     }
 }

@@ -23,11 +23,11 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.blogapp.blog.comments.Comment;
 import com.blogapp.blog.comments.dto.CommentCreateDTO;
+import com.blogapp.blog.comments.repository.CommentRepository;
 import com.blogapp.blog.dto.BlogCreateDTO;
 import com.blogapp.blog.dto.BlogUpdateDTO;
 import com.blogapp.blog.entity.Blog;
 import com.blogapp.blog.repository.BlogRepository;
-import com.blogapp.blog.repository.CommentRepository;
 import com.blogapp.user.entity.User;
 import com.blogapp.user.repository.UserRepository;
 
@@ -185,16 +185,7 @@ public class BlogServiceImplTest {
 
     @Test
     void deleteCommentBlogNotFoundThrowsNotFound() {
-        when(blogRepository.findById(anyLong())).thenReturn(Optional.empty());
-
-        assertThrows(EntityNotFoundException.class,
-                () -> blogServiceImpl.deleteComment(1L, 1l, "username"));
-    }
-
-    @Test
-    void deleteCommentCommentNotFound() {
-        var b = Blog.builder().comments(List.of()).build();
-        when(blogRepository.findById(anyLong())).thenReturn(Optional.of(b));
+        when(commentRepository.findCommmentByIdandBlogId(anyLong(), anyLong())).thenReturn(Optional.empty());
 
         assertThrows(EntityNotFoundException.class,
                 () -> blogServiceImpl.deleteComment(1L, 1l, "username"));
@@ -203,8 +194,9 @@ public class BlogServiceImplTest {
     @Test
     void deleteCommentCommentUserNotOwnerThrows() {
         var user = new User(1L, "notuser", null, null);
-        var b = Blog.builder().comments(List.of(new Comment(1L, user, null, null, null))).build();
-        when(blogRepository.findById(anyLong())).thenReturn(Optional.of(b));
+        var c = new Comment(1L, user, null, null, null);
+        var b = Blog.builder().comments(List.of(c)).build();
+        when(commentRepository.findCommmentByIdandBlogId(anyLong(), anyLong())).thenReturn(Optional.of(c));
 
         assertThrows(RuntimeException.class,
                 () -> blogServiceImpl.deleteComment(1L, 1l, "username"));
@@ -214,15 +206,12 @@ public class BlogServiceImplTest {
     void deleteCommentCommentDeletedSuccesfully() {
         var user = new User(1L, "username", null, null);
         var c1 = new Comment(1L, user, null, null, null);
-        var c2 = new Comment(2L, user, null, null, null);
-        var b = Blog.builder().id(1L).comments(List.of(c1, c2)).build();
 
-        when(blogRepository.findById(anyLong())).thenReturn(Optional.of(b));
+        when(commentRepository.findCommmentByIdandBlogId(anyLong(), anyLong())).thenReturn(Optional.of(c1));
 
         blogServiceImpl.deleteComment(1L, 1L, "username");
 
-        assertEquals(b.getComments().size(), 1);
-        verify(blogRepository).saveAndFlush(any(Blog.class));
+        verify(commentRepository).delete(any(Comment.class));
 
     }
 
