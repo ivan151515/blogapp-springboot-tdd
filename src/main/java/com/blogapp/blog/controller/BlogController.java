@@ -33,14 +33,14 @@ public class BlogController {
     private final BlogService blogService;
 
     @GetMapping
-    public List<BlogsInfoDTO> getBlogs() {
+    public ResponseEntity<List<BlogsInfoDTO>> getBlogs() {
 
-        return blogService.getBlogs();
+        return new ResponseEntity<List<BlogsInfoDTO>>(blogService.getBlogs(), HttpStatus.OK);
     }
 
     @GetMapping("/{id}")
-    public BlogFullDTO getBlog(@PathVariable Long id) {
-        return blogService.getBlogById(id);
+    public ResponseEntity<BlogFullDTO> getBlog(@PathVariable Long id) {
+        return new ResponseEntity<BlogFullDTO>(blogService.getBlogById(id), HttpStatus.OK);
     }
 
     @PostMapping

@@ -117,7 +117,7 @@ public class BlogControllerTest {
         mockMvc.perform(post("/api/blogs")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(dto)))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isUnprocessableEntity());
     }
 
     @WithMockUser(username = "username")
@@ -180,7 +180,7 @@ public class BlogControllerTest {
         mockMvc.perform(put("/api/blogs/2")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(blogUpdateDTO)))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isUnprocessableEntity());
 
     }
 
@@ -228,7 +228,7 @@ public class BlogControllerTest {
         mockMvc.perform(post(("/api/blogs/1"))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(commentCreateDTO)))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isUnprocessableEntity());
     }
 
     @Test
