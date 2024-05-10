@@ -11,15 +11,13 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
-import jakarta.persistence.EntityNotFoundException;
-
 @ControllerAdvice
 public class AppExceptionHandler {
 
-    @ExceptionHandler(EntityNotFoundException.class)
-    public ResponseEntity<ErrorMessages> handleNotFoundExceptions(EntityNotFoundException entityNotFoundException) {
+    @ExceptionHandler(AppException.class)
+    public ResponseEntity<ErrorMessages> handleNotFoundExceptions(AppException appException) {
 
-        return responseErrorMessages(List.of(entityNotFoundException.getMessage()), HttpStatus.NOT_FOUND);
+        return responseErrorMessages(List.of(appException.getMessage()), appException.getError().getStatus());
 
     }
 
@@ -30,12 +28,14 @@ public class AppExceptionHandler {
 
     }
 
-    @ExceptionHandler(RuntimeException.class)
-    public ResponseEntity<ErrorMessages> handleNotFoundExceptions(RuntimeException runtimeException) {
+    // @ExceptionHandler(RuntimeException.class)
+    // public ResponseEntity<ErrorMessages>
+    // handleNotFoundExceptions(RuntimeException runtimeException) {
 
-        return responseErrorMessages(List.of(runtimeException.getMessage()), HttpStatus.BAD_REQUEST);
+    // return responseErrorMessages(List.of(runtimeException.getMessage()),
+    // HttpStatus.BAD_REQUEST);
 
-    }
+    // }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErrorMessages> handleValidationError(MethodArgumentNotValidException exception) {

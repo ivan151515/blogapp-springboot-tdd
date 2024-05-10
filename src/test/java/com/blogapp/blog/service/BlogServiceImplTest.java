@@ -28,10 +28,10 @@ import com.blogapp.blog.dto.BlogCreateDTO;
 import com.blogapp.blog.dto.BlogUpdateDTO;
 import com.blogapp.blog.entity.Blog;
 import com.blogapp.blog.repository.BlogRepository;
+import com.blogapp.exception.AppException;
 import com.blogapp.user.entity.User;
 import com.blogapp.user.repository.UserRepository;
 
-import jakarta.persistence.EntityNotFoundException;
 import net.bytebuddy.utility.RandomString;
 
 @ExtendWith(MockitoExtension.class)
@@ -65,7 +65,7 @@ public class BlogServiceImplTest {
     void getBlogById_notFoundThrows() {
         when(blogRepository.findById(anyLong())).thenReturn(Optional.empty());
 
-        assertThrows(EntityNotFoundException.class, () -> blogServiceImpl.getBlogById(2L));
+        assertThrows(AppException.class, () -> blogServiceImpl.getBlogById(2L));
     }
 
     @Test
@@ -87,7 +87,7 @@ public class BlogServiceImplTest {
     void createBlog_userNotFoundThrows() {
         var b = new BlogCreateDTO("validTitle", RandomString.make(150), true);
         when(userRepository.findByUsername("username")).thenReturn(Optional.empty());
-        assertThrows(EntityNotFoundException.class, () -> blogServiceImpl.createBlog(b, "username"));
+        assertThrows(AppException.class, () -> blogServiceImpl.createBlog(b, "username"));
 
         verify(userRepository).findByUsername("username");
     }
@@ -111,7 +111,7 @@ public class BlogServiceImplTest {
     void updateBlog_blogNotFoundThrowsException() {
         when(blogRepository.findById(anyLong())).thenReturn(Optional.empty());
 
-        assertThrows(EntityNotFoundException.class,
+        assertThrows(AppException.class,
                 () -> blogServiceImpl.updateBlog(new BlogUpdateDTO(), "username", 2L));
     }
 
@@ -120,7 +120,7 @@ public class BlogServiceImplTest {
         var b = Blog.builder().user(new User(1L, "user1", null, null)).build();
         when(blogRepository.findById(anyLong())).thenReturn(Optional.of(b));
 
-        assertThrows(RuntimeException.class, () -> blogServiceImpl.updateBlog(new BlogUpdateDTO(), "username", 2L));
+        assertThrows(AppException.class, () -> blogServiceImpl.updateBlog(new BlogUpdateDTO(), "username", 2L));
     }
 
     @ParameterizedTest
@@ -161,7 +161,7 @@ public class BlogServiceImplTest {
     void blogNotFoundThrows() {
         when(blogRepository.findById(anyLong())).thenReturn(Optional.empty());
 
-        assertThrows(EntityNotFoundException.class,
+        assertThrows(AppException.class,
                 () -> blogServiceImpl.addComment(new CommentCreateDTO(), 1L, "username"));
     }
 
@@ -187,7 +187,7 @@ public class BlogServiceImplTest {
     void deleteCommentBlogNotFoundThrowsNotFound() {
         when(commentRepository.findCommmentByIdandBlogId(anyLong(), anyLong())).thenReturn(Optional.empty());
 
-        assertThrows(EntityNotFoundException.class,
+        assertThrows(AppException.class,
                 () -> blogServiceImpl.deleteComment(1L, 1l, "username"));
     }
 
@@ -197,7 +197,7 @@ public class BlogServiceImplTest {
         var c = new Comment(1L, user, null, null, null);
         when(commentRepository.findCommmentByIdandBlogId(anyLong(), anyLong())).thenReturn(Optional.of(c));
 
-        assertThrows(RuntimeException.class,
+        assertThrows(AppException.class,
                 () -> blogServiceImpl.deleteComment(1L, 1l, "username"));
     }
 
@@ -218,7 +218,7 @@ public class BlogServiceImplTest {
     void deleteBlogThrowNotFound() {
         when(blogRepository.findById(anyLong())).thenReturn(Optional.empty());
 
-        assertThrows(EntityNotFoundException.class,
+        assertThrows(AppException.class,
                 () -> blogServiceImpl.deleteBlog(1L, "username"));
 
     }
@@ -229,7 +229,7 @@ public class BlogServiceImplTest {
 
         when(blogRepository.findById(anyLong())).thenReturn(Optional.of(b));
 
-        assertThrows(RuntimeException.class,
+        assertThrows(AppException.class,
                 () -> blogServiceImpl.deleteBlog(1L, "username"));
 
     }

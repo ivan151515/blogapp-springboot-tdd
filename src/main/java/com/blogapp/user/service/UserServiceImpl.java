@@ -8,6 +8,8 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import com.blogapp.exception.AppException;
+import com.blogapp.exception.Error;
 import com.blogapp.security.jwt.JwtService;
 import com.blogapp.user.dto.AuthRequestDto;
 import com.blogapp.user.dto.LoginResponseDTO;
@@ -71,7 +73,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserDTO updateUserProfile(String username, ProfileUpdateDto profileUpdateDto) {
         User user = userRepository.findUserWithProfile(username)
-                .orElseThrow(() -> new EntityNotFoundException("user not found"));
+                .orElseThrow(() -> new AppException(Error.USER_NOT_FOUND));
 
         if (profileUpdateDto.getAge() != null) {
             user.getProfile().setAge(profileUpdateDto.getAge());

@@ -24,14 +24,13 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import com.blogapp.exception.AppException;
 import com.blogapp.security.jwt.JwtService;
 import com.blogapp.user.dto.AuthRequestDto;
 import com.blogapp.user.entity.User;
 import com.blogapp.user.profile.Profile;
 import com.blogapp.user.profile.ProfileUpdateDto;
 import com.blogapp.user.repository.UserRepository;
-
-import jakarta.persistence.EntityNotFoundException;
 
 @ExtendWith(MockitoExtension.class)
 public class UserServiceImplTest {
@@ -133,7 +132,7 @@ public class UserServiceImplTest {
     void whenUserNotFoundThrows() {
         when(userRepository.findUserWithProfile(anyString())).thenReturn(Optional.empty());
 
-        assertThrows(EntityNotFoundException.class,
+        assertThrows(AppException.class,
                 () -> userServiceImpl.updateUserProfile("username", ProfileUpdateDto.builder().build()));
     }
 }

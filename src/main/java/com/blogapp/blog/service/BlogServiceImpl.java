@@ -15,6 +15,8 @@ import com.blogapp.blog.dto.BlogUpdateDTO;
 import com.blogapp.blog.dto.BlogsInfoDTO;
 import com.blogapp.blog.entity.Blog;
 import com.blogapp.blog.repository.BlogRepository;
+import com.blogapp.exception.AppException;
+import com.blogapp.exception.Error;
 import com.blogapp.user.repository.UserRepository;
 
 import jakarta.persistence.EntityNotFoundException;
@@ -39,7 +41,7 @@ public class BlogServiceImpl implements BlogService {
 
     @Override
     public BlogFullDTO getBlogById(Long id) {
-        var blog = blogRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("NOT FOUND"));
+        var blog = blogRepository.findById(id).orElseThrow(() -> new AppException(Error.BLOG_NOT_FOUND));
 
         return BlogFullDTO.mapBlogToBlogFullDTO(blog);
     }
@@ -47,7 +49,7 @@ public class BlogServiceImpl implements BlogService {
     @Override
     public BlogFullDTO createBlog(BlogCreateDTO blogCreateDTO, String username) {
         var user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new EntityNotFoundException(username + " not found"));
+                .orElseThrow(() -> new AppException(Error.USER_NOT_FOUND));
 
         var b = Blog.builder().content(blogCreateDTO.getContent()).title(blogCreateDTO.getTitle())
                 .important(blogCreateDTO.getImportant()).user(user).build();
@@ -58,10 +60,10 @@ public class BlogServiceImpl implements BlogService {
 
     @Override
     public BlogFullDTO updateBlog(BlogUpdateDTO blogUpdateDTO, String username, long blogId) {
-        var b = blogRepository.findById(blogId).orElseThrow(() -> new EntityNotFoundException("not found"));
+        var b = blogRepository.findById(blogId).orElseThrow(() -> new AppException(Error.BLOG_NOT_FOUND));
 
         if (!b.getUser().getUsername().equals(username)) {
-            throw new RuntimeException("action not allowed");
+            throw new AppException(Error.ACTION_NOT_ALLOWED);
         }
 
         if (blogUpdateDTO.getImportant() != null) {
@@ -76,9 +78,9 @@ public class BlogServiceImpl implements BlogService {
 
     @Override
     public CommentDTO addComment(CommentCreateDTO commentCreateDTO, Long blogId, String username) {
-        var blog = blogRepository.findById(blogId).orElseThrow(() -> new EntityNotFoundException("not found"));
+        var blog = blogRepository.findById(blogId).orElseThrow(() -> new AppException(Error.BLOG_NOT_FOUND));
 
-        var user = userRepository.findByUsername(username).orElseThrow(() -> new EntityNotFoundException("not found"));
+        var user = userRepository.findByUsername(username).orElseThrow(() -> new AppException(Error.USER_NOT_FOUND));
 
         var c = Comment.builder().blog(blog).content(commentCreateDTO.getContent()).user(user).build();
 
@@ -88,10 +90,10 @@ public class BlogServiceImpl implements BlogService {
     @Override
     public void deleteComment(Long blogId, Long commentId, String username) {
         var c = commentRepository.findCommmentByIdandBlogId(commentId, blogId)
-                .orElseThrow(() -> new EntityNotFoundException("not found"));
+                .orElseThrow(() -> new AppException(Error.COMMENT_NOT_FOUND));
 
         if (!c.getUser().getUsername().equals(username)) {
-            throw new RuntimeException("forbidden");
+            throw new AppException(Error.ACTION_NOT_ALLOWED);
         }
 
         commentRepository.delete(c);
@@ -99,10 +101,10 @@ public class BlogServiceImpl implements BlogService {
 
     @Override
     public void deleteBlog(Long id, String username) {
-        var b = blogRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("not found"));
+        var b = blogRepository.findById(id).orElseThrow(() -> new AppException(Error.BLOG_NOT_FOUND));
 
         if (!b.getUser().getUsername().equals(username)) {
-            throw new RuntimeException("not allowed");
+            throw new AppException(Error.ACTION_NOT_ALLOWED);
         }
         blogRepository.delete(b);
     }
