@@ -66,10 +66,11 @@ public class BlogControllerTest {
 
         mockMvc.perform(get("/api/blogs")
                 .contentType(MediaType.APPLICATION_JSON)).andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].username").value("user"))
-                .andExpect(jsonPath("$[0].createdAt").exists())
-                .andExpect(jsonPath("$").isArray())
-                .andExpect(jsonPath("$", org.hamcrest.Matchers.hasSize(2))); // Verify that there are two elements in
+                .andExpect(jsonPath("blogs[0].username").value("user"))
+                .andExpect(jsonPath("blogs[0].createdAt").exists())
+                .andExpect(jsonPath("blogs").isArray())
+                .andExpect(jsonPath("blogs", org.hamcrest.Matchers.hasSize(2))); // Verify that there are two elements
+                                                                                 // in
 
         verify(blogService).getBlogs();
     }
@@ -86,10 +87,10 @@ public class BlogControllerTest {
 
         mockMvc.perform(get("/api/blogs/2"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("username").value("username"))
-                .andExpect(jsonPath("important").value(true))
-                .andExpect(jsonPath("comments", org.hamcrest.Matchers.hasSize(2))); // Verify that there are two
-                                                                                    // elements in
+                .andExpect(jsonPath("blog.username").value("username"))
+                .andExpect(jsonPath("blog.important").value(true))
+                .andExpect(jsonPath("blog.comments", org.hamcrest.Matchers.hasSize(2))); // Verify that there are two
+        // elements in
         verify(blogService).getBlogById(2L);
     }
 
@@ -133,9 +134,9 @@ public class BlogControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(b)))
                 .andExpect(status().isCreated())
-                .andExpect(jsonPath("title").value("validTitle"))
-                .andExpect(jsonPath("id").value(1L))
-                .andExpect(jsonPath("username").value("username"));
+                .andExpect(jsonPath("blog.title").value("validTitle"))
+                .andExpect(jsonPath("blog.id").value(1L))
+                .andExpect(jsonPath("blog.username").value("username"));
 
         verify(blogService).createBlog(any(BlogCreateDTO.class), anyString());
     }
@@ -240,8 +241,8 @@ public class BlogControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(new CommentCreateDTO("new commment"))))
                 .andExpect(status().isCreated())
-                .andExpect(jsonPath("content").value("new comment"))
-                .andExpect(jsonPath("username").value("username"));
+                .andExpect(jsonPath("comment.content").value("new comment"))
+                .andExpect(jsonPath("comment.username").value("username"));
 
         verify(blogService).addComment(any(CommentCreateDTO.class), anyLong(), anyString());
     }

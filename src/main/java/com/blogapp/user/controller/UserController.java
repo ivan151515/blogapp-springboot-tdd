@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.blogapp.user.dto.AuthRequestDto;
 import com.blogapp.user.dto.LoginResponseDTO;
 import com.blogapp.user.dto.RegisterResponseDTO;
-import com.blogapp.user.dto.UserDTO;
+import com.blogapp.user.dto.UserRestModel;
 import com.blogapp.user.profile.ProfileUpdateDto;
 import com.blogapp.user.service.UserService;
 
@@ -41,14 +41,16 @@ public class UserController {
     }
 
     @GetMapping("/me")
-    public ResponseEntity<UserDTO> getLoggedInUser(Authentication authentication) {
-        return new ResponseEntity<UserDTO>(userService.findUserWithProfile(authentication.getName()), HttpStatus.OK);
+    public ResponseEntity<UserRestModel> getLoggedInUser(Authentication authentication) {
+        return new ResponseEntity<UserRestModel>(
+                new UserRestModel(userService.findUserWithProfile(authentication.getName())), HttpStatus.OK);
     }
 
     @PutMapping("/me")
-    public ResponseEntity<UserDTO> updateUserProfile(Authentication authentication,
+    public ResponseEntity<UserRestModel> updateUserProfile(Authentication authentication,
             @RequestBody ProfileUpdateDto profileUpdateDto) {
-        return new ResponseEntity<UserDTO>(userService.updateUserProfile(authentication.getName(), profileUpdateDto),
+        return new ResponseEntity<UserRestModel>(
+                new UserRestModel(userService.updateUserProfile(authentication.getName(), profileUpdateDto)),
                 HttpStatus.OK);
     }
 }

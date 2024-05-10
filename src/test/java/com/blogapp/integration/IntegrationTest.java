@@ -78,7 +78,7 @@ public class IntegrationTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .header(AUTHORIZATION, "Bearer " + token))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("profile.id").value(1));
+                .andExpect(jsonPath("user.profile.id").value(1));
 
     }
 
@@ -90,9 +90,9 @@ public class IntegrationTest {
                 .header(AUTHORIZATION, "Bearer " + token)
                 .content(objectMapper.writeValueAsString(ProfileUpdateDto.builder().bio("new bio").age(22).build())))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("profile.bio").value("new bio"))
-                .andExpect(jsonPath("username").value("validUsername"))
-                .andExpect(jsonPath("profile.age").value(22));
+                .andExpect(jsonPath("user.profile.bio").value("new bio"))
+                .andExpect(jsonPath("user.username").value("validUsername"))
+                .andExpect(jsonPath("user.profile.age").value(22));
     }
 
     @Order(6)
@@ -105,11 +105,11 @@ public class IntegrationTest {
                 .content(objectMapper.writeValueAsString(b))
                 .header(AUTHORIZATION, "Bearer " + token))
                 .andExpect(status().isCreated())
-                .andExpect(jsonPath("id").value(1))
-                .andExpect(jsonPath("username").value("validUsername"))
-                .andExpect(jsonPath("title").value("title"))
-                .andExpect(jsonPath("createdAt").isNotEmpty())
-                .andExpect(jsonPath("user.password").doesNotExist());
+                .andExpect(jsonPath("blog.id").value(1))
+                .andExpect(jsonPath("blog.username").value("validUsername"))
+                .andExpect(jsonPath("blog.title").value("title"))
+                .andExpect(jsonPath("blog.createdAt").isNotEmpty())
+                .andExpect(jsonPath("blog.user.password").doesNotExist());
     }
 
     @Order(7)
@@ -118,12 +118,12 @@ public class IntegrationTest {
         mockMvc.perform(get("/api/blogs")
                 .header(AUTHORIZATION, "Bearer " + token))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$").isArray())
-                .andExpect(jsonPath("$", org.hamcrest.Matchers.hasSize(1)))
-                .andExpect(jsonPath("$[0].id").value(1))
-                .andExpect(jsonPath("$[0].username").value("validUsername"))
-                .andExpect(jsonPath("$[0].title").value("title"))
-                .andExpect(jsonPath("$[0].createdAt").isNotEmpty());
+                .andExpect(jsonPath("blogs").isArray())
+                .andExpect(jsonPath("blogs", org.hamcrest.Matchers.hasSize(1)))
+                .andExpect(jsonPath("blogs[0].id").value(1))
+                .andExpect(jsonPath("blogs[0].username").value("validUsername"))
+                .andExpect(jsonPath("blogs[0].title").value("title"))
+                .andExpect(jsonPath("blogs[0].createdAt").isNotEmpty());
     }
 
     @Order(8)
@@ -132,11 +132,11 @@ public class IntegrationTest {
         mockMvc.perform(get("/api/blogs/1")
                 .header(AUTHORIZATION, "Bearer " + token))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("id").value(1))
-                .andExpect(jsonPath("username").value("validUsername"))
-                .andExpect(jsonPath("title").value("title"))
-                .andExpect(jsonPath("createdAt").isNotEmpty())
-                .andExpect(jsonPath("user.password").doesNotExist());
+                .andExpect(jsonPath("blog.id").value(1))
+                .andExpect(jsonPath("blog.username").value("validUsername"))
+                .andExpect(jsonPath("blog.title").value("title"))
+                .andExpect(jsonPath("blog.createdAt").isNotEmpty())
+                .andExpect(jsonPath("blog.user.password").doesNotExist());
     }
 
     @Order(9)
@@ -147,10 +147,10 @@ public class IntegrationTest {
                 .content(objectMapper.writeValueAsString(new BlogUpdateDTO("updated content", true)))
                 .header(AUTHORIZATION, "Bearer " + token))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("content").value("updated content"))
-                .andExpect(jsonPath("id").value(1))
-                .andExpect(jsonPath("important").value(true))
-                .andExpect(jsonPath("username").value("validUsername"));
+                .andExpect(jsonPath("blog.content").value("updated content"))
+                .andExpect(jsonPath("blog.id").value(1))
+                .andExpect(jsonPath("blog.important").value(true))
+                .andExpect(jsonPath("blog.username").value("validUsername"));
     }
 
     @Order(10)
@@ -161,10 +161,10 @@ public class IntegrationTest {
                 .content(objectMapper.writeValueAsString(new CommentCreateDTO("new comment!")))
                 .header(AUTHORIZATION, "Bearer " + token))
                 .andExpect(status().isCreated())
-                .andExpect(jsonPath("content").value("new comment!"))
-                .andExpect(jsonPath("id").value(1))
-                .andExpect(jsonPath("createdAt").exists())
-                .andExpect(jsonPath("username").value("validUsername"));
+                .andExpect(jsonPath("comment.content").value("new comment!"))
+                .andExpect(jsonPath("comment.id").value(1))
+                .andExpect(jsonPath("comment.createdAt").exists())
+                .andExpect(jsonPath("comment.username").value("validUsername"));
     }
 
     @Order(11)

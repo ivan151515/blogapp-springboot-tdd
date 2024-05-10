@@ -39,127 +39,131 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 @AutoConfigureMockMvc
 public class UserControllerTest {
 
-    @Autowired
-    MockMvc mockMvc;
+        @Autowired
+        MockMvc mockMvc;
 
-    private ObjectMapper objectMapper = new ObjectMapper();
+        private ObjectMapper objectMapper = new ObjectMapper();
 
-    @MockBean
-    private UserService userService;
+        @MockBean
+        private UserService userService;
 
-    @MethodSource("provideInvalidAuthRequest")
-    @ParameterizedTest
-    void invalidUserLogin_badRequest(AuthRequestDto loginDto) throws JsonProcessingException, Exception {
-        mockMvc.perform(post("/api/auth/login")
-                .with(csrf())
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsBytes(loginDto)))
-                .andExpect(status().isUnprocessableEntity());
-    }
+        @MethodSource("provideInvalidAuthRequest")
+        @ParameterizedTest
+        void invalidUserLogin_badRequest(AuthRequestDto loginDto) throws JsonProcessingException, Exception {
+                mockMvc.perform(post("/api/auth/login")
+                                .with(csrf())
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsBytes(loginDto)))
+                                .andExpect(status().isUnprocessableEntity());
+        }
 
-    @Test
-    void validLoginRequest_okResponse() throws JsonProcessingException, Exception {
-        var loginDto = new AuthRequestDto("validUsername", "validPassword");
-        when(userService.login(any(AuthRequestDto.class))).thenReturn(new LoginResponseDTO("token"));
-        mockMvc.perform(post("/api/auth/login")
-                .with(csrf())
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(loginDto)))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("token").value("token"));
+        @Test
+        void validLoginRequest_okResponse() throws JsonProcessingException, Exception {
+                var loginDto = new AuthRequestDto("validUsername", "validPassword");
+                when(userService.login(any(AuthRequestDto.class))).thenReturn(new LoginResponseDTO("token"));
+                mockMvc.perform(post("/api/auth/login")
+                                .with(csrf())
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(loginDto)))
+                                .andExpect(status().isOk())
+                                .andExpect(jsonPath("token").value("token"));
 
-        // verify(userService)
-    }
+                // verify(userService)
+        }
 
-    @Test
-    void loginServiceThrows_badRequest() throws JsonProcessingException, Exception {
-        var loginDto = new AuthRequestDto("validUsername", "validPassword");
-        when(userService.login(any(AuthRequestDto.class)))
-                .thenThrow(new BadCredentialsException("invalid credentials"));
-        mockMvc.perform(post("/api/auth/login")
-                .with(csrf())
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(loginDto)))
-                .andExpect(status().isUnauthorized())
-                .andExpect(jsonPath("token").doesNotExist());
+        @Test
+        void loginServiceThrows_badRequest() throws JsonProcessingException, Exception {
+                var loginDto = new AuthRequestDto("validUsername", "validPassword");
+                when(userService.login(any(AuthRequestDto.class)))
+                                .thenThrow(new BadCredentialsException("invalid credentials"));
+                mockMvc.perform(post("/api/auth/login")
+                                .with(csrf())
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(loginDto)))
+                                .andExpect(status().isUnauthorized())
+                                .andExpect(jsonPath("token").doesNotExist());
 
-    }
+        }
 
-    @MethodSource("provideInvalidAuthRequest")
-    @ParameterizedTest
-    void invalidUserRegistration_badRequest(AuthRequestDto registerDto) throws JsonProcessingException, Exception {
-        mockMvc.perform(post("/api/auth/register")
-                .with(csrf())
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(registerDto)))
-                .andExpect(status().isUnprocessableEntity());
-    }
+        @MethodSource("provideInvalidAuthRequest")
+        @ParameterizedTest
+        void invalidUserRegistration_badRequest(AuthRequestDto registerDto) throws JsonProcessingException, Exception {
+                mockMvc.perform(post("/api/auth/register")
+                                .with(csrf())
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(registerDto)))
+                                .andExpect(status().isUnprocessableEntity());
+        }
 
-    @Test
-    void whenValidRegistration_returnUserDto() throws JsonProcessingException, Exception {
-        when(userService.register(any(AuthRequestDto.class))).thenReturn(new RegisterResponseDTO("success"));
-        mockMvc.perform(post("/api/auth/register")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(new AuthRequestDto("validPassword", "validUsername"))))
-                .andExpect(status().isCreated())
-                .andExpect(jsonPath("message").value("success"));
-    }
+        @Test
+        void whenValidRegistration_returnUserDto() throws JsonProcessingException, Exception {
+                when(userService.register(any(AuthRequestDto.class))).thenReturn(new RegisterResponseDTO("success"));
+                mockMvc.perform(post("/api/auth/register")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(
+                                                new AuthRequestDto("validPassword", "validUsername"))))
+                                .andExpect(status().isCreated())
+                                .andExpect(jsonPath("message").value("success"));
+        }
 
-    @Test
-    void whenServiceRegisterThrows_badRequest() throws JsonProcessingException, Exception {
-        when(userService.register(any())).thenThrow(new BadCredentialsException("User already exists"));
+        @Test
+        void whenServiceRegisterThrows_badRequest() throws JsonProcessingException, Exception {
+                when(userService.register(any())).thenThrow(new BadCredentialsException("User already exists"));
 
-        mockMvc.perform(post("/api/auth/register")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(new AuthRequestDto("validPassword", "validUsername"))))
-                .andExpect(status().isUnauthorized());
-    }
+                mockMvc.perform(post("/api/auth/register")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(
+                                                new AuthRequestDto("validPassword", "validUsername"))))
+                                .andExpect(status().isUnauthorized());
+        }
 
-    @Test
-    void getLoggedInUserDetails_noUserUnauthorized() throws Exception {
-        mockMvc.perform(get("/api/auth/me")
-                .contentType(MediaType.APPLICATION_JSON)).andExpect(status().isUnauthorized());
-    }
+        @Test
+        void getLoggedInUserDetails_noUserUnauthorized() throws Exception {
+                mockMvc.perform(get("/api/auth/me")
+                                .contentType(MediaType.APPLICATION_JSON)).andExpect(status().isUnauthorized());
+        }
 
-    @Test
-    @WithMockUser(username = "validUsername")
-    void getLoggedInUserDetails_withUserReturnsProfile() throws Exception {
-        when(userService.findUserWithProfile(anyString())).thenReturn(new UserDTO(1l, "validUsername", new Profile()));
-        mockMvc.perform(get("/api/auth/me")
-                .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("username").value("validUsername"))
-                .andExpect(jsonPath("profile").exists());
-        verify(userService).findUserWithProfile("validUsername");
-    }
+        @Test
+        @WithMockUser(username = "validUsername")
+        void getLoggedInUserDetails_withUserReturnsProfile() throws Exception {
+                when(userService.findUserWithProfile(anyString()))
+                                .thenReturn(new UserDTO(1l, "validUsername", new Profile()));
+                mockMvc.perform(get("/api/auth/me")
+                                .contentType(MediaType.APPLICATION_JSON))
+                                .andExpect(status().isOk())
+                                .andExpect(jsonPath("user.username").value("validUsername"))
+                                .andExpect(jsonPath("user.profile").exists());
+                verify(userService).findUserWithProfile("validUsername");
+        }
 
-    @Test
-    void updateProfile_unauthorized() throws JsonProcessingException, Exception {
-        mockMvc.perform(put("/api/auth/me")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(new ProfileUpdateDto("io", 2, "pliumber"))))
-                .andExpect(status().isUnauthorized());
-    }
+        @Test
+        void updateProfile_unauthorized() throws JsonProcessingException, Exception {
+                mockMvc.perform(put("/api/auth/me")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(new ProfileUpdateDto("io", 2, "pliumber"))))
+                                .andExpect(status().isUnauthorized());
+        }
 
-    @Test
-    @WithMockUser(username = "username")
-    void updateProfile_success() throws JsonProcessingException, Exception {
-        when(userService.updateUserProfile(anyString(), any(ProfileUpdateDto.class)))
-                .thenReturn(new UserDTO(1l, "username", new Profile(1L, "io", "pliumber", 2)));
-        mockMvc.perform(put("/api/auth/me")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(new ProfileUpdateDto("io", 2, "pliumber"))))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("profile.bio").value("io")).andExpect(jsonPath("profile.age").value(2));
+        @Test
+        @WithMockUser(username = "username")
+        void updateProfile_success() throws JsonProcessingException, Exception {
+                when(userService.updateUserProfile(anyString(), any(ProfileUpdateDto.class)))
+                                .thenReturn(new UserDTO(1l, "username", new Profile(1L, "io", "pliumber", 2)));
+                mockMvc.perform(put("/api/auth/me")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(new ProfileUpdateDto("io", 2, "pliumber"))))
+                                .andExpect(status().isOk())
+                                .andExpect(jsonPath("user.profile.bio").value("io"))
+                                .andExpect(jsonPath("user.profile.age").value(2));
 
-        verify(userService).updateUserProfile(anyString(), any(ProfileUpdateDto.class));
-    }
+                verify(userService).updateUserProfile(anyString(), any(ProfileUpdateDto.class));
+        }
 
-    private static Stream<Arguments> provideInvalidAuthRequest() {
-        return Stream.of(
-                Arguments.of(new AuthRequestDto(null, null)),
-                Arguments.of(new AuthRequestDto("asd", "dad")),
-                Arguments.of(new AuthRequestDto(null, "validUsername")),
-                Arguments.of(new AuthRequestDto("validpassword", null)));
-    }
+        private static Stream<Arguments> provideInvalidAuthRequest() {
+                return Stream.of(
+                                Arguments.of(new AuthRequestDto(null, null)),
+                                Arguments.of(new AuthRequestDto("asd", "dad")),
+                                Arguments.of(new AuthRequestDto(null, "validUsername")),
+                                Arguments.of(new AuthRequestDto("validpassword", null)));
+        }
 }
