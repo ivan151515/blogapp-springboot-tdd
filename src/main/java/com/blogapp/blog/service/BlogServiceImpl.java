@@ -19,7 +19,6 @@ import com.blogapp.exception.AppException;
 import com.blogapp.exception.Error;
 import com.blogapp.user.repository.UserRepository;
 
-import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 

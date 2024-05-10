@@ -177,9 +177,27 @@ public class IntegrationTest {
 
     @Order(12)
     @Test
+    void getBlogAfterDeletedCommment() throws Exception {
+        mockMvc.perform(get("/api/blogs/1")
+                .header(AUTHORIZATION, "Bearer " + token))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("blog.comments", org.hamcrest.Matchers.hasSize(0)));
+
+    }
+
+    @Order(13)
+    @Test
     void deleteBlog() throws Exception {
         mockMvc.perform(delete("/api/blogs/1")
                 .header(AUTHORIZATION, "Bearer " + token))
                 .andExpect(status().isNoContent());
+    }
+
+    @Order(14)
+    @Test
+    void getBlogAterDeletedNotFound() throws Exception {
+        mockMvc.perform(get("/api/blogs/1")
+                .header(AUTHORIZATION, "Bearer " + token))
+                .andExpect(status().isNotFound());
     }
 }
