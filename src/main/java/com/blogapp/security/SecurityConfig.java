@@ -33,11 +33,13 @@ public class SecurityConfig {
         return http
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests((configure) -> {
-
-                    configure
-                            .requestMatchers("/api/auth/me").authenticated()
-                            .requestMatchers(("/api/auth/**")).permitAll()
+                    configure.requestMatchers("/api/auth/me").authenticated()
+                            .requestMatchers("/api/auth/**", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
                             .anyRequest().authenticated();
+                    // configure.requestMatchers("/api/auth/me").authenticated();
+                    // configure.requestMatchers("/api/auth/**", "/swagger-ui/**",
+                    // "/v3/api-docs/**").permitAll();
+                    // configure.anyRequest().authenticated();
 
                 })
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
