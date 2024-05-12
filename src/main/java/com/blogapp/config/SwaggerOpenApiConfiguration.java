@@ -3,11 +3,7 @@ package com.blogapp.config;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import io.swagger.v3.oas.annotations.enums.SecuritySchemeIn;
-import io.swagger.v3.oas.annotations.enums.SecuritySchemeType;
-import io.swagger.v3.oas.annotations.security.SecurityScheme;
 import io.swagger.v3.oas.models.Components;
-import io.swagger.v3.oas.models.ExternalDocumentation;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Contact;
 import io.swagger.v3.oas.models.info.Info;
@@ -21,11 +17,11 @@ public class SwaggerOpenApiConfiguration {
     public OpenAPI openAPI() {
         return new OpenAPI().addSecurityItem(new SecurityRequirement().addList("Bearer Authentication"))
                 .components(new Components().addSecuritySchemes("Bearer Authentication", createAPIKeyScheme()))
-                .info(new Info().title("My REST API")
-                        .description("Some custom description of API.")
+                .info(new Info().title("Blog app v2")
+                        .description("Api for blogging application")
                         .version("1.0")
-                        .contact(new Contact().name("Sallo Szrajbman").email("www.baeldung.com")
-                                .url("salloszraj@gmail.com"))
+                        .contact(new Contact().name("Spring boot").email("www.spring.io")
+                                .url("localhost.com"))
                         .license(new License().name("License of API")
                                 .url("API license URL")));
     }

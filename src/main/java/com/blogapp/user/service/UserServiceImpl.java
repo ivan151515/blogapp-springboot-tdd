@@ -41,7 +41,7 @@ public class UserServiceImpl implements UserService {
         var auth = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(loginDto.getUsername(),
                 loginDto.getPassword()));
 
-        return new LoginResponseDTO(jwtService.generateToken(auth));
+        return new LoginResponseDTO(jwtService.generateToken(auth), loginDto.getUsername());
     }
 
     @Override
