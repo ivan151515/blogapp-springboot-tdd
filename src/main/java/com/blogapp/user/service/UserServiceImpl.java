@@ -9,6 +9,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import com.blogapp.blog.dto.BlogsInfoDTO;
 import com.blogapp.exception.AppException;
 import com.blogapp.exception.Error;
 import com.blogapp.security.jwt.JwtService;
@@ -94,7 +95,11 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserDTO getUserWithProfileAndBlogs(Long id) {
         // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getUserWithProfileAndBlogs'");
+        var user = userRepository.findUserWithProfileAndBlogs(id)
+                .orElseThrow(() -> new AppException(Error.USER_NOT_FOUND));
+
+        return new UserDTO(user.getId(), user.getUsername(), user.getProfile(),
+                user.getBlogs().stream().map(BlogsInfoDTO::mapBlogsToBlogsInfoDTO).toList());
     }
 
 }

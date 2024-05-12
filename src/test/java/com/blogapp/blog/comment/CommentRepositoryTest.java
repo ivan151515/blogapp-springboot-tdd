@@ -33,7 +33,7 @@ public class CommentRepositoryTest {
 
     @BeforeEach
     void setUp() {
-        user = new User(1L, "USERNAME", null, null);
+        user = new User(1L, "USERNAME", null, null, null);
         user = userRepository.saveAndFlush(user);
         blog = blogRepository.saveAndFlush(Blog.builder().user(user).build());
 

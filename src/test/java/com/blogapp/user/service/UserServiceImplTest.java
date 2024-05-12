@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -105,7 +106,7 @@ public class UserServiceImplTest {
 
     @Test
     void findUserWithProfile() {
-        User userWithProfile = new User(1L, "USENRAME", "password", new Profile());
+        User userWithProfile = new User(1L, "USENRAME", "password", new Profile(), null);
         when(userRepository.findUserWithProfile(anyString())).thenReturn(Optional.of(userWithProfile));
 
         var result = userServiceImpl.findUserWithProfile(userWithProfile.getUsername());
@@ -115,7 +116,7 @@ public class UserServiceImplTest {
 
     @Test
     void updateUserProfileWhenUserFound() {
-        User returnedUser = new User(null, "username", null, new Profile(1L, "fakebio", null, 23));
+        User returnedUser = new User(null, "username", null, new Profile(1L, "fakebio", null, 23), null);
         when(userRepository.findUserWithProfile("username")).thenReturn(Optional.of(returnedUser));
         when(userRepository.save(returnedUser)).thenReturn(returnedUser);
         ProfileUpdateDto profileUpdateDto = ProfileUpdateDto.builder().age(22).bio("realbio").build();
@@ -134,5 +135,15 @@ public class UserServiceImplTest {
 
         assertThrows(AppException.class,
                 () -> userServiceImpl.updateUserProfile("username", ProfileUpdateDto.builder().build()));
+    }
+
+    @Test
+    void findUserWithBlogsAndProfileNotFoundThrows() {
+        when(userRepository.findUserWithProfileAndBlogs(anyLong())).thenReturn(Optional.empty());
+
+        assertThrows(AppException.class,
+                () -> userServiceImpl.getUserWithProfileAndBlogs(1L));
+
+        verify(userRepository).findUserWithProfileAndBlogs(anyLong());
     }
 }

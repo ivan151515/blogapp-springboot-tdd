@@ -132,7 +132,7 @@ public class BlogControllerTest {
         void postBlog_validRequest() throws JsonProcessingException, Exception {
                 var b = new BlogCreateDTO("validTitle", RandomString.make(200), true);
                 var returnedBlog = new Blog(1L, "validTitle", b.getContent(), true,
-                                new User(1L, "username", null, null), LocalDateTime.now(), List.of());
+                                new User(1L, "username", null, null, null), LocalDateTime.now(), List.of());
                 when(blogService.createBlog(any(BlogCreateDTO.class), anyString()))
                                 .thenReturn(BlogFullDTO.mapBlogToBlogFullDTO(returnedBlog));
 
@@ -198,7 +198,7 @@ public class BlogControllerTest {
         void updateBlogValidRequestBodyUpdatesSuccessfully(BlogUpdateDTO blogUpdateDTO)
                         throws JsonProcessingException, Exception {
                 var b = new Blog(1L, "validTitle", RandomString.make(200), true,
-                                new User(1L, "username", null, null), LocalDateTime.now(), List.of());
+                                new User(1L, "username", null, null, null), LocalDateTime.now(), List.of());
                 when(blogService.updateBlog(any(BlogUpdateDTO.class), anyString(), anyLong()))
                                 .thenReturn(BlogFullDTO.mapBlogToBlogFullDTO(b));
 

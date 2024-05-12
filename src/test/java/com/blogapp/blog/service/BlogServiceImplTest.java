@@ -51,8 +51,8 @@ public class BlogServiceImplTest {
 
     @Test
     void getBlogsReturnsListOfBlogs() {
-        var b = Blog.builder().user(new User(1L, "user1", null, null)).build();
-        var b2 = Blog.builder().user(new User(1L, "user2", null, null)).build();
+        var b = Blog.builder().user(new User(1L, "user1", null, null, null)).build();
+        var b2 = Blog.builder().user(new User(1L, "user2", null, null, null)).build();
         when(blogRepository.findAll()).thenReturn(List.of(b, b2));
 
         blogServiceImpl.getBlogs();
@@ -71,7 +71,7 @@ public class BlogServiceImplTest {
     @Test
     void getBlogById_returnsBlog() {
         var b = Blog.builder().comments(List.of(Comment.builder().user(new User()).build()))
-                .user(new User(1L, "user1", null, null))
+                .user(new User(1L, "user1", null, null, null))
                 .build();
 
         when(blogRepository.findById(anyLong())).thenReturn(Optional.of(b));
@@ -95,7 +95,7 @@ public class BlogServiceImplTest {
     @Test
     void createBlog_savesBlogInRepository() {
         var b = new BlogCreateDTO("validTitle", RandomString.make(150), true);
-        var u = new User(1L, "username", null, null);
+        var u = new User(1L, "username", null, null, null);
         var savedBlog = new Blog(1L, b.getTitle(), b.getContent(), b.getImportant(), u, LocalDateTime.now(), List.of());
         when(userRepository.findByUsername("username")).thenReturn(Optional.of(u));
         when(blogRepository.saveAndFlush(any(Blog.class))).thenReturn(savedBlog);
@@ -117,7 +117,7 @@ public class BlogServiceImplTest {
 
     @Test
     void whenUserDoesntOwnTheBlogThrowBadRequestError() {
-        var b = Blog.builder().user(new User(1L, "user1", null, null)).build();
+        var b = Blog.builder().user(new User(1L, "user1", null, null, null)).build();
         when(blogRepository.findById(anyLong())).thenReturn(Optional.of(b));
 
         assertThrows(AppException.class, () -> blogServiceImpl.updateBlog(new BlogUpdateDTO(), "username", 2L));
@@ -130,13 +130,13 @@ public class BlogServiceImplTest {
                 .title("new title ")
                 .content("valid content")
                 .important(true)
-                .user(new User(1L, "user1", null, null))
+                .user(new User(1L, "user1", null, null, null))
                 .build();
         var blogToReturn = Blog.builder()
                 .title("new title ")
                 .content(blogUpdateDTO.getContent() != null ? blogUpdateDTO.getContent() : b.getContent())
                 .important(blogUpdateDTO.getImportant() != null ? blogUpdateDTO.getImportant() : b.getImportant())
-                .user(new User(1L, "user1", null, null))
+                .user(new User(1L, "user1", null, null, null))
                 .build();
 
         when(blogRepository.findById(anyLong())).thenReturn(Optional.of(b));
@@ -167,8 +167,8 @@ public class BlogServiceImplTest {
 
     @Test
     void addsCommentSuccessfully() {
-        var b = Blog.builder().id(1L).user(new User(1L, "user1", null, null)).build();
-        var u = new User(1l, "username", null, null);
+        var b = Blog.builder().id(1L).user(new User(1L, "user1", null, null, null)).build();
+        var u = new User(1l, "username", null, null, null);
         when(blogRepository.findById(1L)).thenReturn(Optional.of(b));
         when(userRepository.findByUsername("username")).thenReturn(Optional.of(u));
         when(commentRepository.saveAndFlush(any(Comment.class)))
@@ -193,7 +193,7 @@ public class BlogServiceImplTest {
 
     @Test
     void deleteCommentCommentUserNotOwnerThrows() {
-        var user = new User(1L, "notuser", null, null);
+        var user = new User(1L, "notuser", null, null, null);
         var c = new Comment(1L, user, null, null, null);
         when(commentRepository.findCommmentByIdandBlogId(anyLong(), anyLong())).thenReturn(Optional.of(c));
 
@@ -203,7 +203,7 @@ public class BlogServiceImplTest {
 
     @Test
     void deleteCommentCommentDeletedSuccesfully() {
-        var user = new User(1L, "username", null, null);
+        var user = new User(1L, "username", null, null, null);
         var c1 = new Comment(1L, user, null, null, null);
 
         when(commentRepository.findCommmentByIdandBlogId(anyLong(), anyLong())).thenReturn(Optional.of(c1));
@@ -225,7 +225,7 @@ public class BlogServiceImplTest {
 
     @Test
     void deleteBlogThrowNotAllowed() {
-        var b = Blog.builder().id(1L).user(new User(1L, "user1", null, null)).build();
+        var b = Blog.builder().id(1L).user(new User(1L, "user1", null, null, null)).build();
 
         when(blogRepository.findById(anyLong())).thenReturn(Optional.of(b));
 
@@ -236,7 +236,7 @@ public class BlogServiceImplTest {
 
     @Test
     void deleteBlogSuccesfull() {
-        var b = Blog.builder().id(1L).user(new User(1L, "user1", null, null)).build();
+        var b = Blog.builder().id(1L).user(new User(1L, "user1", null, null, null)).build();
 
         when(blogRepository.findById(anyLong())).thenReturn(Optional.of(b));
 
