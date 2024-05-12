@@ -16,6 +16,7 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -25,6 +26,8 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import com.blogapp.exception.AppException;
+import com.blogapp.exception.Error;
 import com.blogapp.user.dto.AuthRequestDto;
 import com.blogapp.user.dto.LoginResponseDTO;
 import com.blogapp.user.dto.RegisterResponseDTO;
@@ -128,7 +131,7 @@ public class UserControllerTest {
         @WithMockUser(username = "validUsername")
         void getLoggedInUserDetails_withUserReturnsProfile() throws Exception {
                 when(userService.findUserWithProfile(anyString()))
-                                .thenReturn(new UserDTO(1l, "validUsername", new Profile()));
+                                .thenReturn(new UserDTO(1l, "validUsername", new Profile(), null));
                 mockMvc.perform(get("/api/auth/me")
                                 .contentType(MediaType.APPLICATION_JSON))
                                 .andExpect(status().isOk())
@@ -149,7 +152,7 @@ public class UserControllerTest {
         @WithMockUser(username = "username")
         void updateProfile_success() throws JsonProcessingException, Exception {
                 when(userService.updateUserProfile(anyString(), any(ProfileUpdateDto.class)))
-                                .thenReturn(new UserDTO(1l, "username", new Profile(1L, "io", "pliumber", 2)));
+                                .thenReturn(new UserDTO(1l, "username", new Profile(1L, "io", "pliumber", 2), null));
                 mockMvc.perform(put("/api/auth/me")
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(new ProfileUpdateDto("io", 2, "pliumber"))))
@@ -158,6 +161,34 @@ public class UserControllerTest {
                                 .andExpect(jsonPath("user.profile.age").value(2));
 
                 verify(userService).updateUserProfile(anyString(), any(ProfileUpdateDto.class));
+        }
+
+        @Test
+        void getUserProfileAndBlogsUnauthorized() throws Exception {
+                mockMvc.perform(get("/api/users/1")
+                                .contentType(MediaType.APPLICATION_JSON)).andExpect(status().isUnauthorized());
+        }
+
+        @Test
+        @WithMockUser
+        void getUserProfileAndBlogsServiceThrowsNotFound() throws Exception {
+                when(userService.getUserWithProfileAndBlogs(anyLong()))
+                                .thenThrow(new AppException(Error.USER_NOT_FOUND));
+                mockMvc.perform(get("/api/users/1")
+                                .contentType(MediaType.APPLICATION_JSON)).andExpect(status().isNotFound());
+
+                verify(userService).getUserWithProfileAndBlogs(anyLong());
+
+        }
+
+        @Test
+        @WithMockUser
+        void getUserProfileAndBlogsOkResponse() throws Exception {
+                when(userService.getUserWithProfileAndBlogs(anyLong())).thenReturn(new UserDTO());
+                mockMvc.perform(get("/api/users/1")
+                                .contentType(MediaType.APPLICATION_JSON)).andExpect(status().isOk());
+
+                verify(userService).getUserWithProfileAndBlogs(anyLong());
         }
 
         private static Stream<Arguments> provideInvalidAuthRequest() {

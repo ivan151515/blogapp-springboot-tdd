@@ -1,5 +1,6 @@
 package com.blogapp.user.service;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.apache.coyote.BadRequestException;
@@ -67,7 +68,7 @@ public class UserServiceImpl implements UserService {
         var user = userRepository.findUserWithProfile(username)
                 .orElseThrow(() -> new EntityNotFoundException("user not found"));
 
-        return new UserDTO(user.getId(), user.getUsername(), user.getProfile());
+        return new UserDTO(user.getId(), user.getUsername(), user.getProfile(), List.of());
     }
 
     @Override
@@ -87,7 +88,13 @@ public class UserServiceImpl implements UserService {
 
         User savedUser = userRepository.save(user);
 
-        return new UserDTO(savedUser.getId(), savedUser.getUsername(), savedUser.getProfile());
+        return new UserDTO(savedUser.getId(), savedUser.getUsername(), savedUser.getProfile(), List.of());
+    }
+
+    @Override
+    public UserDTO getUserWithProfileAndBlogs(Long id) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'getUserWithProfileAndBlogs'");
     }
 
 }

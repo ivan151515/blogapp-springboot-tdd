@@ -19,4 +19,6 @@ public interface UserService {
     UserDTO findUserWithProfile(String username);
 
     UserDTO updateUserProfile(String username, ProfileUpdateDto profileUpdateDto);
+
+    UserDTO getUserWithProfileAndBlogs(Long id);
 }
