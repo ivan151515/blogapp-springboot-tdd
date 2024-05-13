@@ -20,5 +20,5 @@ public interface UserService {
 
     UserDTO updateUserProfile(String username, ProfileUpdateDto profileUpdateDto);
 
-    UserDTO getUserWithProfileAndBlogs(Long id);
+    // UserDTO getUserWithProfileAndBlogs(Long id);
 }

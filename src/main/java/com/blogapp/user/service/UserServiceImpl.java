@@ -9,7 +9,6 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import com.blogapp.blog.dto.BlogsInfoDTO;
 import com.blogapp.exception.AppException;
 import com.blogapp.exception.Error;
 import com.blogapp.security.AuthUserDetails;
@@ -91,15 +90,6 @@ public class UserServiceImpl implements UserService {
         User savedUser = userRepository.save(user);
 
         return new UserDTO(savedUser.getId(), savedUser.getUsername(), savedUser.getProfile(), List.of());
-    }
-
-    @Override
-    public UserDTO getUserWithProfileAndBlogs(Long id) {
-        var user = userRepository.findUserWithProfileAndBlogs(id)
-                .orElseThrow(() -> new AppException(Error.USER_NOT_FOUND));
-
-        return new UserDTO(user.getId(), user.getUsername(), user.getProfile(),
-                user.getBlogs().stream().map(BlogsInfoDTO::mapBlogsToBlogsInfoDTO).toList());
     }
 
 }
