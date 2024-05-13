@@ -124,6 +124,7 @@ public class IntegrationTest {
                 .andExpect(jsonPath("blogs").isArray())
                 .andExpect(jsonPath("blogs", org.hamcrest.Matchers.hasSize(1)))
                 .andExpect(jsonPath("blogs[0].id").value(1))
+                .andExpect(jsonPath("blogs[0].userId").isNumber())
                 .andExpect(jsonPath("blogs[0].username").value("validUsername"))
                 .andExpect(jsonPath("blogs[0].title").value("title"))
                 .andExpect(jsonPath("blogs[0].createdAt").isNotEmpty());
@@ -151,6 +152,7 @@ public class IntegrationTest {
                 .andExpect(jsonPath("blogs").isArray())
                 .andExpect(jsonPath("blogs", org.hamcrest.Matchers.hasSize(1)))
                 .andExpect(jsonPath("blogs[0].id").value(1))
+                .andExpect(jsonPath("blogs[0].userId").isNumber())
                 .andExpect(jsonPath("blogs[0].username").value("validUsername"))
                 .andExpect(jsonPath("blogs[0].title").value("title"))
                 .andExpect(jsonPath("blogs[0].createdAt").isNotEmpty());

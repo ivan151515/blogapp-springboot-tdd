@@ -20,6 +20,7 @@ public class BlogsInfoDTO {
     private String title;
     private String username;
     private String content;
+    private Long userId;
     private Long id;
     private LocalDateTime createdAt;
 
@@ -29,6 +30,7 @@ public class BlogsInfoDTO {
                 .username(blog.getUser().getUsername())
                 .content(blog.getContent())
                 .createdAt(blog.getCreatedAt())
+                .userId(blog.getUser().getId())
                 .id(blog.getId())
                 .title(blog.getTitle())
                 .build();
