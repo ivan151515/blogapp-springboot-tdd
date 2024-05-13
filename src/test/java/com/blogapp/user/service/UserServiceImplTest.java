@@ -4,7 +4,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -137,13 +136,4 @@ public class UserServiceImplTest {
                 () -> userServiceImpl.updateUserProfile("username", ProfileUpdateDto.builder().build()));
     }
 
-    @Test
-    void findUserWithBlogsAndProfileNotFoundThrows() {
-        when(userRepository.findUserWithProfileAndBlogs(anyLong())).thenReturn(Optional.empty());
-
-        assertThrows(AppException.class,
-                () -> userServiceImpl.getUserWithProfileAndBlogs(1L));
-
-        verify(userRepository).findUserWithProfileAndBlogs(anyLong());
-    }
 }

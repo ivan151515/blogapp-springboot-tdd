@@ -82,4 +82,10 @@ public class BlogController {
 
         return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
     }
+
+    @GetMapping("/user/{id}")
+    public ResponseEntity<MultipleBlogsRestModel> findBlogsByUser(@PathVariable Long id) {
+        return new ResponseEntity<MultipleBlogsRestModel>(new MultipleBlogsRestModel(blogService.findBlogsByUser(id)),
+                HttpStatus.OK);
+    }
 }

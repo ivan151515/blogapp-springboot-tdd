@@ -18,7 +18,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -55,10 +54,12 @@ public class UserController {
                 HttpStatus.OK);
     }
 
-    @GetMapping("/users/{id}")
-    public ResponseEntity<UserRestModel> getUserProfileWithBlogs(@PathVariable Long id) {
+    // @GetMapping("/users/{id}")
+    // public ResponseEntity<UserRestModel> getUserProfileWithBlogs(@PathVariable
+    // Long id) {
 
-        return new ResponseEntity<UserRestModel>(new UserRestModel(userService.getUserWithProfileAndBlogs(id)),
-                HttpStatus.OK);
-    }
+    // return new ResponseEntity<UserRestModel>(new
+    // UserRestModel(userService.getUserWithProfileAndBlogs(id)),
+    // HttpStatus.OK);
+    // }
 }

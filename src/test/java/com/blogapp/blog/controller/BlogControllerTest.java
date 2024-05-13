@@ -4,6 +4,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
@@ -310,6 +311,22 @@ public class BlogControllerTest {
         void deleteBlogSuccessNoContent() throws Exception {
                 mockMvc.perform(delete("/api/blogs/1")).andExpect(status().isNoContent());
 
+        }
+
+        @Test
+        void findBlogsByUserUnauthenticated() throws Exception {
+                mockMvc.perform(get("/api/blogs/user/1")).andExpect(status().isUnauthorized());
+
+        }
+
+        @Test
+        @WithMockUser
+        void findBlogsByUserReturnsOk() throws Exception {
+                when(blogService.findBlogsByUser(anyLong())).thenReturn(List.of(mock(BlogsInfoDTO.class)));
+
+                mockMvc.perform(get("/api/blogs/user/1")).andExpect(status().isOk());
+
+                verify(blogService).findBlogsByUser(anyLong());
         }
 
         private static Stream<Arguments> provideInvalidCommentCreateDTO() {

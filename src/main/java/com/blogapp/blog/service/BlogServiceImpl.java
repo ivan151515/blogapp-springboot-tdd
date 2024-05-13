@@ -108,4 +108,11 @@ public class BlogServiceImpl implements BlogService {
         blogRepository.delete(b);
     }
 
+    @Override
+    public List<BlogsInfoDTO> findBlogsByUser(Long userId) {
+        var blogs = blogRepository.findBlogsByUser(userId);
+
+        return blogs.stream().map(BlogsInfoDTO::mapBlogsToBlogsInfoDTO).toList();
+    }
+
 }

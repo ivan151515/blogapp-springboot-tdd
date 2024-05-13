@@ -143,6 +143,21 @@ public class IntegrationTest {
 
     @Order(9)
     @Test
+    void getBlogsByUser() throws Exception {
+        mockMvc.perform(get("/api/blogs/user/1")
+                .header(AUTHORIZATION, "Bearer " + token))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("blogs").isArray())
+                .andExpect(jsonPath("blogs", org.hamcrest.Matchers.hasSize(1)))
+                .andExpect(jsonPath("blogs[0].id").value(1))
+                .andExpect(jsonPath("blogs[0].username").value("validUsername"))
+                .andExpect(jsonPath("blogs[0].title").value("title"))
+                .andExpect(jsonPath("blogs[0].createdAt").isNotEmpty());
+
+    }
+
+    @Order(10)
+    @Test
     void updateBlog() throws Exception {
         mockMvc.perform(put("/api/blogs/1")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -155,7 +170,7 @@ public class IntegrationTest {
                 .andExpect(jsonPath("blog.username").value("validUsername"));
     }
 
-    @Order(10)
+    @Order(11)
     @Test
     void addComment() throws Exception {
         mockMvc.perform(post("/api/blogs/1")
@@ -169,7 +184,7 @@ public class IntegrationTest {
                 .andExpect(jsonPath("comment.username").value("validUsername"));
     }
 
-    @Order(11)
+    @Order(12)
     @Test
     void deleteComment() throws Exception {
         mockMvc.perform(delete("/api/blogs/1/comments/1")
@@ -177,7 +192,7 @@ public class IntegrationTest {
                 .andExpect(status().isNoContent());
     }
 
-    @Order(12)
+    @Order(13)
     @Test
     void getBlogAfterDeletedCommment() throws Exception {
         mockMvc.perform(get("/api/blogs/1")
@@ -187,7 +202,7 @@ public class IntegrationTest {
 
     }
 
-    @Order(13)
+    @Order(14)
     @Test
     void deleteBlog() throws Exception {
         mockMvc.perform(delete("/api/blogs/1")
@@ -195,7 +210,7 @@ public class IntegrationTest {
                 .andExpect(status().isNoContent());
     }
 
-    @Order(14)
+    @Order(15)
     @Test
     void getBlogAterDeletedNotFound() throws Exception {
         mockMvc.perform(get("/api/blogs/1")

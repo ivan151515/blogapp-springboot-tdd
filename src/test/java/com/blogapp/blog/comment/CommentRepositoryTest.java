@@ -46,7 +46,7 @@ public class CommentRepositoryTest {
 
     @Test
     void findCommmentByIdandBlogId() {
-        var result = commentRepository.findCommmentByIdandBlogId(1L, 1L);
+        var result = commentRepository.findCommmentByIdandBlogId(comment.getId(), blog.getId());
 
         System.out.println(result);
         assertNotNull(result.get());

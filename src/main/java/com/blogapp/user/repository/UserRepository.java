@@ -14,6 +14,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
     Optional<User> findUserWithProfile(String username);
 
     // TODO: CHANGE BELOW
-    @Query("Select u from User u JOIN FETCH u.profile where u.id = :id")
+    @Query("SELECT DISTINCT u FROM User u LEFT JOIN FETCH u.profile LEFT JOIN FETCH u.blogs WHERE u.id = :id")
     Optional<User> findUserWithProfileAndBlogs(Long id);
 }

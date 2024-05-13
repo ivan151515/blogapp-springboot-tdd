@@ -245,6 +245,17 @@ public class BlogServiceImplTest {
         verify(blogRepository).delete(any(Blog.class));
     }
 
+    @Test
+    void findBlogsByUser() {
+        var b = Blog.builder().user(new User(1L, "user1", null, null, null)).build();
+        var b2 = Blog.builder().user(new User(1L, "user1", null, null, null)).build();
+        when(blogRepository.findBlogsByUser(anyLong())).thenReturn(List.of(b, b2));
+
+        blogServiceImpl.findBlogsByUser(1L);
+
+        verify(blogRepository).findBlogsByUser(anyLong());
+    }
+
     private static Stream<Arguments> provideValidUpdateDTO() {
         return Stream.of(
                 Arguments.of(new BlogUpdateDTO(RandomString.make(150), null)),

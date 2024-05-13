@@ -47,8 +47,5 @@ public class UserRepositoryTest {
 
         assertThrows(DataIntegrityViolationException.class, () -> userRepository.saveAndFlush(duplicate));
     }
-    // @Test
-    // void findByUsernameReturnsUserWithOutProfile() {
-    // var result = userRepository.findByUsername(null)
-    // }
+
 }
