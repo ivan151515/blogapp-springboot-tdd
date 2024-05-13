@@ -25,6 +25,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import com.blogapp.exception.AppException;
+import com.blogapp.security.AuthUserDetails;
 import com.blogapp.security.jwt.JwtService;
 import com.blogapp.user.dto.AuthRequestDto;
 import com.blogapp.user.entity.User;
@@ -63,7 +64,9 @@ public class UserServiceImplTest {
     @Test
     void loginUser_validUsernamePasswordReturnToken() {
         when(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class)))
-                .thenReturn(mock(Authentication.class));
+                .thenReturn(new UsernamePasswordAuthenticationToken(
+                        new AuthUserDetails(new User(1L, null, null, null, null)), STR));
+
         when(jwtService.generateToken(any(Authentication.class))).thenReturn("jwtToken");
 
         var response = userServiceImpl.login(new AuthRequestDto("validPassword", "test@test.com"));

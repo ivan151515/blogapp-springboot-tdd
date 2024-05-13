@@ -17,6 +17,7 @@ import org.apache.coyote.BadRequestException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -49,7 +50,9 @@ public class UserController {
     @PutMapping("/auth/me")
     public ResponseEntity<UserRestModel> updateUserProfile(Authentication authentication,
             @RequestBody ProfileUpdateDto profileUpdateDto) {
+        System.out.println(authentication);
         return new ResponseEntity<UserRestModel>(
+
                 new UserRestModel(userService.updateUserProfile(authentication.getName(), profileUpdateDto)),
                 HttpStatus.OK);
     }

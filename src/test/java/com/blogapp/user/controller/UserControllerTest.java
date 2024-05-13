@@ -61,7 +61,7 @@ public class UserControllerTest {
         void validLoginRequest_okResponse() throws JsonProcessingException, Exception {
                 var loginDto = new AuthRequestDto("validUsername", "validPassword");
                 when(userService.login(any(AuthRequestDto.class)))
-                                .thenReturn(new LoginResponseDTO("token", "username"));
+                                .thenReturn(new LoginResponseDTO("token", "username", 1L));
                 mockMvc.perform(post("/api/auth/login")
                                 .with(csrf())
                                 .contentType(MediaType.APPLICATION_JSON)

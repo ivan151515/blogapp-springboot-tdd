@@ -15,6 +15,7 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtEncoder;
 
 import com.blogapp.security.jwt.JwtServiceImpl;
+import com.blogapp.user.entity.User;
 
 @ExtendWith(MockitoExtension.class)
 
@@ -32,6 +33,7 @@ public class JwtServiceImplTest {
 
         when(authentication.getName()).thenReturn("username");
         when(jwtEncoder.encode(any())).thenReturn(mock(Jwt.class));
+        when(authentication.getPrincipal()).thenReturn(new AuthUserDetails(new User(1L, null, null, null, null)));
         jwtServiceImpl.generateToken(authentication);
 
         verify(jwtEncoder).encode(any());

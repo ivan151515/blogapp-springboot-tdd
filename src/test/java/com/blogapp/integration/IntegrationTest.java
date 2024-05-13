@@ -61,6 +61,7 @@ public class IntegrationTest {
                 .content(objectMapper.writeValueAsString(authRequestDto)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("token").isNotEmpty())
+                .andExpect(jsonPath("id").isNumber())
                 .andReturn().getResponse().getContentAsString();
 
         token = objectMapper.readTree(response).get("token").textValue();

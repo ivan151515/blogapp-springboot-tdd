@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import com.blogapp.blog.dto.BlogsInfoDTO;
 import com.blogapp.exception.AppException;
 import com.blogapp.exception.Error;
+import com.blogapp.security.AuthUserDetails;
 import com.blogapp.security.jwt.JwtService;
 import com.blogapp.user.dto.AuthRequestDto;
 import com.blogapp.user.dto.LoginResponseDTO;
@@ -42,8 +43,8 @@ public class UserServiceImpl implements UserService {
 
         var auth = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(loginDto.getUsername(),
                 loginDto.getPassword()));
-
-        return new LoginResponseDTO(jwtService.generateToken(auth), loginDto.getUsername());
+        var authUserDetails = (AuthUserDetails) auth.getPrincipal();
+        return new LoginResponseDTO(jwtService.generateToken(auth), loginDto.getUsername(), authUserDetails.getId());
     }
 
     @Override
@@ -94,7 +95,6 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDTO getUserWithProfileAndBlogs(Long id) {
-        // TODO Auto-generated method stub
         var user = userRepository.findUserWithProfileAndBlogs(id)
                 .orElseThrow(() -> new AppException(Error.USER_NOT_FOUND));
 
